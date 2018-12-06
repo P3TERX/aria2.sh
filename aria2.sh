@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.1.10
-#	Author: Toyo
-#	Blog: https://doub.io/shell-jc4/
+#	Version: 2.0.0α
+#	Author: P3TERX
+#	Blog: https://p3terx.com
 #=================================================
-sh_ver="1.1.10"
+sh_ver="2.0.0α"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -72,7 +72,7 @@ check_new_ver(){
 	echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.34.0 ]，获取地址：[ https://github.com/q3aql/aria2-static-builds/releases ]"
 	read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
 	if [[ -z ${aria2_new_ver} ]]; then
-		aria2_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
+		aria2_new_ver=$(wget -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 		if [[ -z ${aria2_new_ver} ]]; then
 			echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
 			read -e -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
@@ -112,7 +112,7 @@ Download_aria2(){
 	else
 		bit="arm-rbpi"
 	fi
-	wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-${bit}-build1.tar.bz2"
+	wget -N "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-${bit}-build1.tar.bz2"
 	Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-${bit}-build1"
 	
 	[[ ! -s "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
@@ -130,23 +130,31 @@ Download_aria2(){
 }
 Download_aria2_conf(){
 	mkdir "${file}" && cd "${file}"
-	wget --no-check-certificate -N "https://raw.githubusercontent.com/P3TERX/doubi_backup/master/other/Aria2/aria2.conf"
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/aria2.conf"
 	[[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${file}" && exit 1
-	wget --no-check-certificate -N "https://raw.githubusercontent.com/P3TERX/doubi_backup/master/other/Aria2/dht.dat"
-	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT文件下载失败 !" && rm -rf "${file}" && exit 1
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/autoupload.sh"
+	[[ ! -s "autoupload.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[autoupload.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.aria2.sh"
+	[[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.sh"
+	[[ ! -s "delete.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
+	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
+	#wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
+	#[[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
 	echo '' > aria2.session
-	sed -i 's/^rpc-secret=DOUBIToyo/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
+	sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
 }
 Service_aria2(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/P3TERX/doubi_backup/master/service/aria2_centos -O /etc/init.d/aria2; then
+		if ! wget https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_centos -O /etc/init.d/aria2; then
 			echo -e "${Error} Aria2服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/aria2
 		chkconfig --add aria2
 		chkconfig aria2 on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/P3TERX/doubi_backup/master/service/aria2_debian -O /etc/init.d/aria2; then
+		if ! wget https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_debian -O /etc/init.d/aria2; then
 			echo -e "${Error} Aria2服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/aria2
@@ -327,8 +335,8 @@ Set_aria2_RPC_dir(){
 		aria2_dir_1=${aria2_dir}
 	fi
 	echo -e "请输入要设置的 Aria2 文件下载位置(旧位置为：${Green_font_prefix}${aria2_dir_1}${Font_color_suffix})"
-	read -e -p "(默认位置: /usr/local/caddy/www/aria2/Download):" aria2_RPC_dir
-	[[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="/usr/local/caddy/www/aria2/Download"
+	read -e -p "(默认位置: /root/Download):" aria2_RPC_dir
+	[[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="/root/Download"
 	echo
 	if [[ -d "${aria2_RPC_dir}" ]]; then
 		if [[ "${aria2_dir}" != "${aria2_RPC_dir}" ]]; then
@@ -372,7 +380,7 @@ Set_aria2_RPC_passwd_port_dir(){
 Set_aria2_vim_conf(){
 	Read_config
 	aria2_port_old=${aria2_port}
-	echo -e "${Tip} 手动修改配置文件须知（nano 文本编辑器详细使用教程：https://doub.io/linux-jc13/）：
+	echo -e "${Tip} 手动修改配置文件须知（nano 文本编辑器使用教程：https://p3terx.com/archives/linux-nano-tutorial.html）：
 ${Green_font_prefix}1.${Font_color_suffix} 配置文件中含有中文注释，如果你的 服务器系统 或 SSH工具 不支持中文显示，将会乱码(请本地编辑)。
 ${Green_font_prefix}2.${Font_color_suffix} 一会自动打开配置文件后，就可以开始手动编辑文件了。
 ${Green_font_prefix}3.${Font_color_suffix} 如果要退出并保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}y${Font_color_suffix} 后，再按一下 ${Green_font_prefix}回车键${Font_color_suffix} 即可。
@@ -562,13 +570,13 @@ Set_iptables(){
 	fi
 }
 Update_Shell(){
-	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/P3TERX/doubi_backup/master/aria2.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	sh_new_ver=$(wget -qO- -t1 -T3 "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
 	if [[ -e "/etc/init.d/aria2" ]]; then
 		rm -rf /etc/init.d/aria2
 		Service_aria2
 	fi
-	wget -N --no-check-certificate "https://raw.githubusercontent.com/P3TERX/doubi_backup/master/aria2.sh" && chmod +x aria2.sh
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh" && chmod +x aria2.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 action=$1
@@ -576,7 +584,7 @@ if [[ "${action}" == "update-bt-tracker" ]]; then
 	Update_bt_tracker_cron
 else
 echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- Toyo | doub.io/shell-jc4 --
+  -- P3TERX.COM --
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
