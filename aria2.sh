@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.0α
+#	Version: 2.0.1
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.0α"
+sh_ver="2.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -86,7 +86,7 @@ check_new_ver(){
 }
 check_ver_comparison(){
 	aria2_now_ver=$(${aria2c} -v|head -n 1|awk '{print $3}')
-	[[ -z ${aria2_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
+	[[ -z ${aria2_now_ver} ]] && echo -e "${Error} Aria2 当前版本获取失败 !" && exit 1
 	if [[ "${aria2_now_ver}" != "${aria2_new_ver}" ]]; then
 		echo -e "${Info} 发现 Aria2 已有新版本 [ ${aria2_new_ver} ](当前版本：${aria2_now_ver})"
 		read -e -p "是否更新(会中断当前下载任务，请注意) ? [Y/n] :" yn
@@ -193,6 +193,8 @@ Install_aria2(){
 	Add_iptables
 	echo -e "${Info} 开始保存 iptables防火墙规则..."
 	Save_iptables
+	echo -e "${Info} 开始创建 下载目录..."
+	mkdir -p /root/Download
 	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
 	Start_aria2
 }
@@ -337,6 +339,7 @@ Set_aria2_RPC_dir(){
 	echo -e "请输入要设置的 Aria2 文件下载位置(旧位置为：${Green_font_prefix}${aria2_dir_1}${Font_color_suffix})"
 	read -e -p "(默认位置: /root/Download):" aria2_RPC_dir
 	[[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="/root/Download"
+	mkdir -p ${aria2_RPC_dir}
 	echo
 	if [[ -d "${aria2_RPC_dir}" ]]; then
 		if [[ "${aria2_dir}" != "${aria2_RPC_dir}" ]]; then
@@ -499,10 +502,10 @@ Update_bt_tracker_cron(){
 	bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
 	if [ -z "`grep "bt-tracker" ${aria2_conf}`" ]; then
 		sed -i '$a bt-tracker='${bt_tracker_list} "${aria2_conf}"
-		echo -e "${Info} 添加成功..."
+		echo -e "${Info} BT-Tracker服务器 添加成功..."
 	else
 		sed -i "s@bt-tracker.*@bt-tracker=$bt_tracker_list@g" "${aria2_conf}"
-		echo -e "${Info} 更新成功..."
+		echo -e "${Info} BT-Tracker服务器 更新成功..."
 	fi
 	/etc/init.d/aria2 start
 }
@@ -599,7 +602,9 @@ echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]$
  ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置文件
  ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置信息
  ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
- ${Green_font_prefix}10.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
+
+ ${Green_font_prefix}10.${Font_color_suffix} 更新 BT-Tracker服务器
+ ${Green_font_prefix}11.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
 ————————————" && echo
 if [[ -e ${aria2c} ]]; then
 	check_pid
@@ -645,10 +650,13 @@ case "$num" in
 	View_Log
 	;;
 	10)
+	Update_bt_tracker_cron
+	;;
+	11)
 	Update_bt_tracker
 	;;
 	*)
-	echo "请输入正确数字 [0-10]"
+	echo "请输入正确数字 [0-11]"
 	;;
 esac
 fi
