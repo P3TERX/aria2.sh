@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.1
+#	Version: 2.0.2
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.1"
+sh_ver="2.0.2"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -138,6 +138,7 @@ Download_aria2_conf(){
 	[[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.sh"
 	[[ ! -s "delete.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	chmod +x autoupload.sh delete.aria2.sh delete.sh
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
 	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
 	#wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
