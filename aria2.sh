@@ -5,16 +5,19 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.2
+#	Version: 2.0.3
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.2"
+sh_ver="2.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
 aria2_conf="/root/.aria2/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
+autoupload_sh="/root/.aria2/autoupload.sh"
+delete_aria2_sh="/root/.aria2/delete.aria2.sh"
+delete_sh="/root/.aria2/delete.sh"
 Folder="/usr/local/aria2"
 aria2c="/usr/bin/aria2c"
 Crontab_file="/usr/bin/crontab"
@@ -126,18 +129,18 @@ Download_aria2(){
 	make install
 	[[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 主程序安装失败！" && rm -rf "${Folder}" && exit 1
 	chmod +x aria2c
-	echo -e "${Info} Aria2 主程序安装完毕！开始下载配置文件..."
+	echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf(){
-	mkdir "${file}" && cd "${file}"
+	mkdir -p "${file}" && cd "${file}"
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/aria2.conf"
 	[[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${file}" && exit 1
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/autoupload.sh"
-	[[ ! -s "autoupload.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[autoupload.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	[[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${file}" && exit 1
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.aria2.sh"
-	[[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	[[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.sh"
-	[[ ! -s "delete.sh" ]] && echo -e "${Error} Aria2 完美配置脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	[[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
 	chmod +x autoupload.sh delete.aria2.sh delete.sh
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
 	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
@@ -145,6 +148,7 @@ Download_aria2_conf(){
 	#[[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
 	echo '' > aria2.session
 	sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
+	echo -e "${Info} Aria2 完美配置下载完成！"
 }
 Service_aria2(){
 	if [[ ${release} = "centos" ]]; then
@@ -182,7 +186,7 @@ Install_aria2(){
 	echo -e "${Info} 开始下载/安装 主程序..."
 	check_new_ver
 	Download_aria2
-	echo -e "${Info} 开始下载/安装 配置文件..."
+	echo -e "${Info} 开始下载/安装 Aria2 完美配置..."
 	Download_aria2_conf
 	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
 	Service_aria2
@@ -224,7 +228,9 @@ Set_aria2(){
  ${Green_font_prefix}2.${Font_color_suffix}  修改 Aria2 RPC端口
  ${Green_font_prefix}3.${Font_color_suffix}  修改 Aria2 文件下载位置
  ${Green_font_prefix}4.${Font_color_suffix}  修改 Aria2 密码+端口+文件下载位置
- ${Green_font_prefix}5.${Font_color_suffix}  手动 打开配置文件修改" && echo
+ ${Green_font_prefix}5.${Font_color_suffix}  手动 打开配置文件修改
+ ————————————
+ ${Green_font_prefix}0.${Font_color_suffix}  重置/更新 Aria2 完美配置" && echo
 	read -e -p "(默认: 取消):" aria2_modify
 	[[ -z "${aria2_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${aria2_modify} == "1" ]]; then
@@ -237,8 +243,10 @@ Set_aria2(){
 		Set_aria2_RPC_passwd_port_dir
 	elif [[ ${aria2_modify} == "5" ]]; then
 		Set_aria2_vim_conf
+	elif [[ ${aria2_modify} == "0" ]]; then
+		Reset_aria2_conf
 	else
-		echo -e "${Error} 请输入正确的数字(1-5)" && exit 1
+		echo -e "${Error} 请输入正确的数字(0-5)" && exit 1
 	fi
 }
 Set_aria2_RPC_passwd(){
@@ -358,6 +366,7 @@ Set_aria2_RPC_dir(){
 				aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
 				aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}"|sed 's/\//\\\//g')
 				sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
+				sed -i 's/^downloadpath='\'${aria2_dir_2}\''/downloadpath='\'${aria2_RPC_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh}
 				if [[ $? -eq 0 ]];then
 					echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
 					if [[ ${read_123} != "1" ]]; then
@@ -384,6 +393,7 @@ Set_aria2_RPC_passwd_port_dir(){
 Set_aria2_vim_conf(){
 	Read_config
 	aria2_port_old=${aria2_port}
+	aria2_dir_old=${aria2_dir}
 	echo -e "${Tip} 手动修改配置文件须知（nano 文本编辑器使用教程：https://p3terx.com/archives/linux-nano-tutorial.html）：
 ${Green_font_prefix}1.${Font_color_suffix} 配置文件中含有中文注释，如果你的 服务器系统 或 SSH工具 不支持中文显示，将会乱码(请本地编辑)。
 ${Green_font_prefix}2.${Font_color_suffix} 一会自动打开配置文件后，就可以开始手动编辑文件了。
@@ -392,6 +402,28 @@ ${Green_font_prefix}4.${Font_color_suffix} 如果要退出并不保存文件，�
 ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文件，那么配置文件位置： ${Green_font_prefix}/root/.aria2/aria2.conf${Font_color_suffix} (注意是隐藏目录) 。" && echo
 	read -e -p "如果已经理解 nano 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
 	nano "${aria2_conf}"
+	Read_config
+	if [[ ${aria2_port_old} != ${aria2_port} ]]; then
+		aria2_RPC_port=${aria2_port}
+		aria2_port=${aria2_port_old}
+		Del_iptables
+		Add_iptables
+		Save_iptables
+	fi
+	if [[ ${aria2_dir_old} != ${aria2_dir} ]]; then
+		mkdir -p ${aria2_dir}
+		aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
+		aria2_dir_old_2=$(echo "${aria2_dir_old}"|sed 's/\//\\\//g')
+		sed -i 's/^downloadpath='\'${aria2_dir_old_2}\''/downloadpath='\'${aria2_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh}
+	fi
+	Restart_aria2
+}
+Reset_aria2_conf(){
+	Read_config
+	aria2_port_old=${aria2_port}
+	echo -e "${Tip} 此操作会重新下载 Aria2 完美配置，覆盖现有的配置文件及附加功能脚本。" && echo
+	read -e -p "按任意键继续，如要取消请使用 Ctrl+C 。" var
+	Download_aria2_conf
 	Read_config
 	if [[ ${aria2_port_old} != ${aria2_port} ]]; then
 		aria2_RPC_port=${aria2_port}
@@ -603,7 +635,7 @@ echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]$
  ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置文件
  ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置信息
  ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
-
+————————————
  ${Green_font_prefix}10.${Font_color_suffix} 更新 BT-Tracker服务器
  ${Green_font_prefix}11.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
 ————————————" && echo
@@ -618,7 +650,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-read -e -p " 请输入数字 [0-10]:" num
+read -e -p " 请输入数字 [0-11]:" num
 case "$num" in
 	0)
 	Update_Shell
