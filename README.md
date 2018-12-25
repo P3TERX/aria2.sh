@@ -33,15 +33,20 @@ wget -N https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh && chm
 默认下载目录：`/root/Download`
 
 ## 附加功能
-整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2_perfect_config)，包含如下附加功能脚本：
+整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2_perfect_config)，安装过程中会下载如下附加功能脚本：
 
-`delete.aria2.sh` 下载完成后删除 .aria2 文件。（默认启用）
+`autoupload.sh` 下载完成后自动调用 rclone 上传(move)到网盘，删除 `.aria2` 文件，过滤无用文件（默认不启用，[使用教程](https://p3terx.com/archives/offline-download-of-onedrive-gdrive.html)）
 
-`delete.sh` 下载错误和停止后删除文件（包括 .aria2 文件），避免占用空间。（默认启用）
+`delete.aria2.sh` 下载完成后删除 `.aria2` 文件（默认启用）
 
-`autoupload.sh` 下载完成后自动调用 rclone 上传(move)到网盘，删除 .aria2 文件，过滤无用文件等。（可选，[使用教程](https://p3terx.com/archives/offline-download-of-onedrive-gdrive.html)）
+`delete.sh` 下载错误和停止后删除文件（包括 `.aria2` 文件），避免占用空间（默认启用）
+
+`info.sh` 下载暂停时输出下载任务信息到日志中（默认不启用）
 
 ## 更新日志
+### 2018-12-25 v2.0.4
+* 优化调整
+
 ### 2018-12-24 v2.0.3
 * 增加 重置/更新 Aria2 完美配置 选项
 * 优化 修改配置文件下载路径时同步修改附加功能脚本中的下载路径

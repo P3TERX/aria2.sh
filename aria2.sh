@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.3
+#	Version: 2.0.4
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.3"
+sh_ver="2.0.4"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -18,6 +18,7 @@ aria2_log="/root/.aria2/aria2.log"
 autoupload_sh="/root/.aria2/autoupload.sh"
 delete_aria2_sh="/root/.aria2/delete.aria2.sh"
 delete_sh="/root/.aria2/delete.sh"
+info_sh="/root/.aria2/info.sh"
 Folder="/usr/local/aria2"
 aria2c="/usr/bin/aria2c"
 Crontab_file="/usr/bin/crontab"
@@ -141,7 +142,9 @@ Download_aria2_conf(){
 	[[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.sh"
 	[[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
-	chmod +x autoupload.sh delete.aria2.sh delete.sh
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/info.sh"
+	[[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${file}" && exit 1
+	chmod +x autoupload.sh delete.aria2.sh delete.sh info.sh
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
 	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
 	#wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
@@ -366,7 +369,7 @@ Set_aria2_RPC_dir(){
 				aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
 				aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}"|sed 's/\//\\\//g')
 				sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
-				sed -i 's/^downloadpath='\'${aria2_dir_2}\''/downloadpath='\'${aria2_RPC_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh}
+				sed -i 's/^downloadpath='\'${aria2_dir_2}\''/downloadpath='\'${aria2_RPC_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh} ${info_sh}
 				if [[ $? -eq 0 ]];then
 					echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
 					if [[ ${read_123} != "1" ]]; then
@@ -414,7 +417,7 @@ ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文�
 		mkdir -p ${aria2_dir}
 		aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
 		aria2_dir_old_2=$(echo "${aria2_dir_old}"|sed 's/\//\\\//g')
-		sed -i 's/^downloadpath='\'${aria2_dir_old_2}\''/downloadpath='\'${aria2_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh}
+		sed -i 's/^downloadpath='\'${aria2_dir_old_2}\''/downloadpath='\'${aria2_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh} ${info_sh}
 	fi
 	Restart_aria2
 }
@@ -620,7 +623,7 @@ if [[ "${action}" == "update-bt-tracker" ]]; then
 	Update_bt_tracker_cron
 else
 echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- P3TERX.COM --
+  -- \033[1;35mP3TERX.COM\033[0m --
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
