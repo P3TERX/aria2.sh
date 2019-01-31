@@ -9,7 +9,7 @@ CentOS 6+ / Debian 6+ / Ubuntu 14.04+
 ## 下载安装
 执行下面的代码下载并运行脚本，出现脚本操作菜单输入 `1` 开始安装。
 ```
-wget -N https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh && chmod +x aria2.sh && bash aria2.sh
+wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 ```
 ## 使用说明
 进入下载脚本的目录并运行脚本，然后选择你要执行的选项即可。
@@ -33,15 +33,16 @@ wget -N https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh && chm
 默认下载目录：`/root/Download`
 
 ## 附加功能
-整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2_perfect_config)，安装过程中会下载如下附加功能脚本：
+整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2_perfect_config)，在安装 Aria2 的过程中会下载这套配置方案，包含了配置文件、附加功能脚本等文件，用于实现 Aria2 功能的增强和扩展。
 
-`autoupload.sh` 下载完成后自动调用 rclone 上传(move)到网盘，删除 `.aria2` 文件，过滤无用文件（默认不启用，[使用教程](https://p3terx.com/archives/offline-download-of-onedrive-gdrive.html)）
+增强功能：
+* 提升BT下载率和下载速度
+* 下载完成删除残留的`.aria2`后缀名文件
+* 下载错误或取消下载删除未完成的文件
 
-`delete.aria2.sh` 下载完成后删除 `.aria2` 文件（默认启用）
-
-`delete.sh` 下载错误和停止后删除文件（包括 `.aria2` 文件），避免占用空间（默认启用）
-
-`info.sh` 下载暂停时输出下载任务信息到日志中（默认不启用）
+扩展功能：
+* [OneDrive、Google Drive 等网盘离线下载](https://p3terx.com/archives/offline-download-of-onedrive-gdrive.html)
+* [百度网盘转存到 OneDrive 、Google Drive 等其他网盘](https://p3terx.com/archives/baidunetdisk-transfer-to-onedrive-and-google-drive.html)
 
 ## 更新日志
 ### 2018-12-25 v2.0.4
