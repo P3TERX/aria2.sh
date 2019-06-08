@@ -12,9 +12,37 @@ CentOS 6+ / Debian 6+ / Ubuntu 14.04+
 wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 ```
 ## 使用说明
-进入下载脚本的目录并运行脚本，然后选择你要执行的选项即可。
+* 进入下载脚本的目录并运行脚本
 ```
 ./aria2.sh
+```
+* 选择你要执行的选项
+```
+ Aria2 一键安装管理脚本 [v2.0.5]
+  -- P3TERX.COM --
+  
+  0. 升级脚本
+————————————
+  1. 安装 Aria2
+  2. 更新 Aria2
+  3. 卸载 Aria2
+————————————
+  4. 启动 Aria2
+  5. 停止 Aria2
+  6. 重启 Aria2
+————————————
+  7. 修改 配置
+  8. 查看 配置
+  9. 查看 日志
+ 10. 清空 日志
+————————————
+ 11. 手动更新 BT-Tracker
+ 12. 自动更新 BT-Tracker
+————————————
+
+ 当前状态: 已安装 并 已启动
+
+ 请输入数字 [0-12]:
 ```
 
 ## 其他操作
@@ -45,6 +73,10 @@ wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 * [百度网盘转存到 OneDrive 、Google Drive 等其他网盘](https://p3terx.com/archives/baidunetdisk-transfer-to-onedrive-and-google-drive.html)
 
 ## 更新日志
+### 2019-06-08 v2.0.5
+* 增加 清空日志 功能
+* 调整 部分文案
+
 ### 2018-12-25 v2.0.4
 * 优化调整
 

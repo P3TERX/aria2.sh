@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.4
+#	Version: 2.0.5
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.4"
+sh_ver="2.0.5"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -479,13 +479,18 @@ View_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${aria2_log}${Font_color_suffix} 命令。" && echo
 	tail -f ${aria2_log}
 }
+Clean_Log(){
+	[[ ! -e ${aria2_log} ]] && echo -e "${Error} Aria2 日志文件不存在 !" && exit 1
+	> ${aria2_log}
+	echo -e "${Info} Aria2 日志已清空 !"
+}
 Update_bt_tracker(){
 	check_installed_status
 	check_crontab_installed_status
 	crontab_update_status=$(crontab -l|grep "aria2.sh update-bt-tracker")
 	if [[ -z "${crontab_update_status}" ]]; then
 		echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
-		echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
+		echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
 		read -e -p "注意：该功能会定时重启 Aria2！(默认: y):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
@@ -495,7 +500,7 @@ Update_bt_tracker(){
 		fi
 	else
 		echo && echo -e "当前自动更新模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
+		echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
 		read -e -p "注意：该功能会定时重启 Aria2！(默认: n):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
@@ -513,9 +518,9 @@ crontab_update_start(){
 	rm -f "$file_1/crontab.bak"
 	cron_config=$(crontab -l | grep "aria2.sh update-bt-tracker")
 	if [[ -z ${cron_config} ]]; then
-		echo -e "${Error} Aria2 自动更新 BT-Tracker服务器 开启失败 !" && exit 1
+		echo -e "${Error} Aria2 自动更新 BT-Tracker 开启失败 !" && exit 1
 	else
-		echo -e "${Info} Aria2 自动更新 BT-Tracker服务器 开启成功 !"
+		echo -e "${Info} Aria2 自动更新 BT-Tracker 开启成功 !"
 		Update_bt_tracker_cron
 	fi
 }
@@ -526,9 +531,9 @@ crontab_update_stop(){
 	rm -f "$file_1/crontab.bak"
 	cron_config=$(crontab -l | grep "aria2.sh update-bt-tracker")
 	if [[ ! -z ${cron_config} ]]; then
-		echo -e "${Error} Aria2 自动更新 BT-Tracker服务器 停止失败 !" && exit 1
+		echo -e "${Error} Aria2 自动更新 BT-Tracker 停止失败 !" && exit 1
 	else
-		echo -e "${Info} Aria2 自动更新 BT-Tracker服务器 停止成功 !"
+		echo -e "${Info} Aria2 自动更新 BT-Tracker 停止成功 !"
 	fi
 }
 Update_bt_tracker_cron(){
@@ -538,10 +543,10 @@ Update_bt_tracker_cron(){
 	bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
 	if [ -z "`grep "bt-tracker" ${aria2_conf}`" ]; then
 		sed -i '$a bt-tracker='${bt_tracker_list} "${aria2_conf}"
-		echo -e "${Info} BT-Tracker服务器 添加成功..."
+		echo -e "${Info} BT-Tracker 添加成功！"
 	else
 		sed -i "s@bt-tracker.*@bt-tracker=$bt_tracker_list@g" "${aria2_conf}"
-		echo -e "${Info} BT-Tracker服务器 更新成功..."
+		echo -e "${Info} BT-Tracker 更新成功！"
 	fi
 	/etc/init.d/aria2 start
 }
@@ -635,12 +640,13 @@ echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]$
  ${Green_font_prefix} 5.${Font_color_suffix} 停止 Aria2
  ${Green_font_prefix} 6.${Font_color_suffix} 重启 Aria2
 ————————————
- ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置文件
- ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置信息
- ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
+ ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志
+ ${Green_font_prefix}10.${Font_color_suffix} 清空 日志
 ————————————
- ${Green_font_prefix}10.${Font_color_suffix} 更新 BT-Tracker服务器
- ${Green_font_prefix}11.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
+ ${Green_font_prefix}11.${Font_color_suffix} 手动更新 BT-Tracker
+ ${Green_font_prefix}12.${Font_color_suffix} 自动更新 BT-Tracker
 ————————————" && echo
 if [[ -e ${aria2c} ]]; then
 	check_pid
@@ -653,7 +659,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-read -e -p " 请输入数字 [0-11]:" num
+read -e -p " 请输入数字 [0-12]:" num
 case "$num" in
 	0)
 	Update_Shell
@@ -686,13 +692,16 @@ case "$num" in
 	View_Log
 	;;
 	10)
-	Update_bt_tracker_cron
+	Clean_Log
 	;;
 	11)
+	Update_bt_tracker_cron
+	;;
+	12)
 	Update_bt_tracker
 	;;
 	*)
-	echo "请输入正确数字 [0-11]"
+	echo "请输入正确数字 [0-12]"
 	;;
 esac
 fi
