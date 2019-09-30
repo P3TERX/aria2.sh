@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.5
+#	Version: 2.0.6
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.5"
+sh_ver="2.0.6"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -147,8 +147,8 @@ Download_aria2_conf(){
 	chmod +x autoupload.sh delete.aria2.sh delete.sh info.sh
 	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
 	[[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
-	#wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
-	#[[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
+	wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
+	[[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
 	echo '' > aria2.session
 	sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
 	echo -e "${Info} Aria2 完美配置下载完成！"
