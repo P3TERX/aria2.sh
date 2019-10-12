@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.6
+#	Version: 2.0.7
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.6"
+sh_ver="2.0.7"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -73,13 +73,13 @@ check_pid(){
 	PID=`ps -ef| grep "aria2c"| grep -v grep| grep -v "aria2.sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 check_new_ver(){
-	echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.34.0 ]，获取地址：[ https://github.com/q3aql/aria2-static-builds/releases ]"
+	echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/q3aql/aria2-static-builds/releases ]"
 	read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
 	if [[ -z ${aria2_new_ver} ]]; then
 		aria2_new_ver=$(wget -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 		if [[ -z ${aria2_new_ver} ]]; then
 			echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
-			read -e -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
+			read -e -p "请输入版本号 [ 格式如 1.35.0 ] :" aria2_new_ver
 			[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
 		else
 			echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
@@ -98,6 +98,7 @@ check_ver_comparison(){
 		if [[ $yn == [Yy] ]]; then
 			check_pid
 			[[ ! -z $PID ]] && kill -9 ${PID}
+			check_sys
 			Download_aria2 "update"
 			Start_aria2
 		fi

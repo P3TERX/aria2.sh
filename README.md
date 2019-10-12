@@ -87,12 +87,16 @@ wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 
 ## 更新日志
 
-### 2019-09-30 v2.0.6
+### 2019-10-12
 
-- 获取 DHT（IPv6）文件
+- 修复 Aria2 版本更新时因未获取 CPU 架构导致版本下载错误且无法启动的 bug
 
 <details>
 <summary>历史记录</summary>
+
+### 2019-09-30 v2.0.6
+
+- 获取 DHT（IPv6）文件
 
 ### 2019-06-08 v2.0.5
 
