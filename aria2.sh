@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 2.0.7
+#	Version: 2.0.8
 #	Author: P3TERX
 #	Blog: https://p3terx.com
 #=================================================
-sh_ver="2.0.7"
+sh_ver="2.0.8"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -541,7 +541,10 @@ Update_bt_tracker_cron(){
 	check_installed_status
 	check_pid
 	[[ ! -z ${PID} ]] && /etc/init.d/aria2 stop
-	bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
+	# https://github.com/ngosang/trackerslist
+	#bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
+	# https://github.com/XIU2/TrackersListCollection
+	bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
 	if [ -z "`grep "bt-tracker" ${aria2_conf}`" ]; then
 		sed -i '$a bt-tracker='${bt_tracker_list} "${aria2_conf}"
 		echo -e "${Info} BT-Tracker 添加成功！"
