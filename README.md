@@ -1,8 +1,12 @@
 # Aria2 一键安装管理脚本
 
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square)](https://github.com/P3TERX/aria2.sh/blob/master/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/P3TERX/aria2.sh.svg?style=flat-square&label=Stars)](https://github.com/P3TERX/aria2.sh/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/P3TERX/aria2.sh.svg?style=flat-square&label=Fork)](https://github.com/P3TERX/aria2.sh/fork)
+[![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square&label=LICENSE)](https://github.com/P3TERX/aria2.sh/blob/master/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/P3TERX/aria2.sh.svg?style=flat-square&label=Stars)](https://github.com/P3TERX/aria2.sh/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/P3TERX/aria2.sh.svg?style=flat-square&label=Forks)](https://github.com/P3TERX/aria2.sh/fork)
+
+## 项目地址
+
+https://github.com/P3TERX/aria2.sh
 
 ## 系统要求
 
@@ -12,8 +16,8 @@ CentOS 6+ / Debian 6+ / Ubuntu 14.04+
 
 执行下面的代码下载并运行脚本，出现脚本操作菜单输入 `1` 开始安装。
 
-```
-wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
+```shell
+wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 ```
 
 ## 使用说明
@@ -27,10 +31,10 @@ wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 * 选择你要执行的选项
   
   ```
-  Aria2 一键安装管理脚本 [v2.0.5]
+  Aria2 一键安装管理脚本 [v2.0.8]
   -- P3TERX.COM --
   
-  0. 升级脚本
+  1. 升级脚本
   ————————————
   1. 安装 Aria2
   2. 更新 Aria2
@@ -87,12 +91,16 @@ wget -N https://git.io/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 
 ## 更新日志
 
-### 2019-10-12
+### 2019-11-23 v2.0.8
 
-- 修复 Aria2 版本更新时因未获取 CPU 架构导致版本下载错误且无法启动的 bug
+- 修改 Trackers 来源([XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection))
 
 <details>
 <summary>历史记录</summary>
+
+### 2019-10-12 v2.0.7
+
+- 修复 Aria2 版本更新时因未获取 CPU 架构导致版本下载错误且无法启动的 bug
 
 ### 2019-09-30 v2.0.6
 
