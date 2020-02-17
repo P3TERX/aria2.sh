@@ -1,32 +1,31 @@
 #!/usr/bin/env bash
+#=============================================================
+# https://github.com/P3TERX/aria2.sh
+# Description: Aria2 One-click installation management script
+# System Required: CentOS/Debian/Ubuntu
+# Version: 2.1.0
+# Author: Toyo
+# Maintainer: P3TERX
+# Blog: https://p3terx.com
+#=============================================================
+
+sh_ver="2.1.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-
-#=================================================
-# System Required: CentOS/Debian/Ubuntu
-# Description: Aria2
-# Version: 2.0.8
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
-sh_ver="2.0.8"
-filepath=$(cd "$(dirname "$0")"; pwd)
-file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
+download_path="/root/Download"
 aria2_conf="/root/.aria2/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
-autoupload_sh="/root/.aria2/autoupload.sh"
-delete_aria2_sh="/root/.aria2/delete.aria2.sh"
-delete_sh="/root/.aria2/delete.sh"
-info_sh="/root/.aria2/info.sh"
-Folder="/usr/local/aria2"
-aria2c="/usr/bin/aria2c"
+aria2c="/usr/local/bin/aria2c"
 Crontab_file="/usr/bin/crontab"
-
-Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
-Info="${Green_font_prefix}[信息]${Font_color_suffix}"
-Error="${Red_font_prefix}[错误]${Font_color_suffix}"
-Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
+Green_font_prefix="\033[32m"
+Red_font_prefix="\033[31m"
+Green_background_prefix="\033[42;37m"
+Red_background_prefix="\033[41;37m"
+Font_color_suffix="\033[0m"
+Info="[${Green_font_prefix}信息${Font_color_suffix}]"
+Error="[${Red_font_prefix}错误${Font_color_suffix}]"
+Tip="[${Green_font_prefix}注意${Font_color_suffix}]"
 
 check_root(){
     [[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
@@ -108,11 +107,9 @@ check_ver_comparison(){
 }
 Download_aria2(){
     update_dl=$1
-    cd "/usr/local"
-    #echo -e "${bit}"
     if [[ ${bit} == "x86_64" ]]; then
         bit="64bit"
-    elif [[ ${bit} == "i386" || ${bit} == "i686" ]]; then
+    elif [[ ${bit} == i*86 ]]; then
         bit="32bit"
     else
         bit="arm-rbpi"
@@ -121,16 +118,14 @@ Download_aria2(){
     Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-${bit}-build1"
     
     [[ ! -s "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
-    tar jxvf "${Aria2_Name}.tar.bz2"
-    [[ ! -e "/usr/local/${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
-    [[ ${update_dl} = "update" ]] && rm -rf "${Folder}"
-    mv "/usr/local/${Aria2_Name}" "${Folder}"
-    [[ ! -e "${Folder}" ]] && echo -e "${Error} Aria2 文件夹重命名失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && rm -rf "/usr/local/${Aria2_Name}" && exit 1
-    rm -rf "${Aria2_Name}.tar.bz2"
-    cd "${Folder}"
-    make install
-    [[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 主程序安装失败！" && rm -rf "${Folder}" && exit 1
-    chmod +x aria2c
+    tar jxf "${Aria2_Name}.tar.bz2"
+    [[ ! -e "${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
+    [[ ${update_dl} = "update" ]] && rm -f "${aria2c}"
+    cp "${Aria2_Name}/aria2c" /usr/local/bin
+    [[ ! -e /etc/ssl/certs/ca-certificates.crt ]] && (mkdir -p /etc/ssl/certs && cp ${Aria2_Name}/ca-certificates.crt /etc/ssl/certs)
+    rm -rf "${Aria2_Name}.tar.bz2" "${Aria2_Name}"
+    [[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 主程序安装失败！" && exit 1
+    chmod +x ${aria2c}
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf(){
@@ -145,12 +140,14 @@ Download_aria2_conf(){
     [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/info.sh"
     [[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${file}" && exit 1
-    chmod +x autoupload.sh delete.aria2.sh delete.sh info.sh
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
     [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
     [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
-    echo '' > aria2.session
+    touch aria2.session
+    chmod +x *.sh
+    sed -i "/^downloadpath=/c\downloadpath='${download_path}'" ${file}/*.sh
+    sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${download_path}'" ${file}/*.sh
     sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
     echo -e "${Info} Aria2 完美配置下载完成！"
 }
@@ -174,11 +171,10 @@ Service_aria2(){
 Installation_dependency(){
     if [[ ${release} = "centos" ]]; then
         yum update
-        yum -y groupinstall "Development Tools"
-        yum install nano -y
+        yum install nano ca-certificates -y
     else
         apt-get update
-        apt-get install nano build-essential -y
+        apt-get install nano ca-certificates -y
     fi
 }
 Install_aria2(){
@@ -203,7 +199,7 @@ Install_aria2(){
     echo -e "${Info} 开始保存 iptables防火墙规则..."
     Save_iptables
     echo -e "${Info} 开始创建 下载目录..."
-    mkdir -p /root/Download
+    mkdir -p ${download_path}
     echo -e "${Info} 所有步骤 安装完毕，开始启动..."
     Start_aria2
 }
@@ -350,8 +346,8 @@ Set_aria2_RPC_dir(){
         aria2_dir_1=${aria2_dir}
     fi
     echo -e "请输入要设置的 Aria2 文件下载位置(旧位置为：${Green_font_prefix}${aria2_dir_1}${Font_color_suffix})"
-    read -e -p "(默认位置: /root/Download):" aria2_RPC_dir
-    [[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="/root/Download"
+    read -e -p "(默认位置: ${download_path}):" aria2_RPC_dir
+    [[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="${download_path}"
     mkdir -p ${aria2_RPC_dir}
     echo
     if [[ -d "${aria2_RPC_dir}" ]]; then
@@ -370,7 +366,8 @@ Set_aria2_RPC_dir(){
                 aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
                 aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}"|sed 's/\//\\\//g')
                 sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
-                sed -i 's/^downloadpath='\'${aria2_dir_2}\''/downloadpath='\'${aria2_RPC_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh} ${info_sh}
+                sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${file}/*.sh
+                sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${file}/*.sh
                 if [[ $? -eq 0 ]];then
                     echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
                     if [[ ${read_123} != "1" ]]; then
@@ -418,7 +415,8 @@ ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文�
         mkdir -p ${aria2_dir}
         aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
         aria2_dir_old_2=$(echo "${aria2_dir_old}"|sed 's/\//\\\//g')
-        sed -i 's/^downloadpath='\'${aria2_dir_old_2}\''/downloadpath='\'${aria2_dir_2}\''/g' ${autoupload_sh} ${delete_aria2_sh} ${delete_sh} ${info_sh}
+        sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${file}/*.sh
+        sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${file}/*.sh
     fi
     Restart_aria2
 }
@@ -485,10 +483,10 @@ Clean_Log(){
     > ${aria2_log}
     echo -e "${Info} Aria2 日志已清空 !"
 }
-Update_bt_tracker(){
+Update_bt_tracker_cron(){
     check_installed_status
     check_crontab_installed_status
-    crontab_update_status=$(crontab -l|grep "aria2.sh update-bt-tracker")
+    crontab_update_status=$(crontab -l|grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
     if [[ -z "${crontab_update_status}" ]]; then
         echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
         echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
@@ -512,46 +510,37 @@ Update_bt_tracker(){
     fi
 }
 crontab_update_start(){
-    crontab -l > "$file_1/crontab.bak"
-    sed -i "/aria2.sh update-bt-tracker/d" "$file_1/crontab.bak"
-    echo -e "\n0 3 * * 1 /bin/bash $file_1/aria2.sh update-bt-tracker" >> "$file_1/crontab.bak"
-    crontab "$file_1/crontab.bak"
-    rm -f "$file_1/crontab.bak"
-    cron_config=$(crontab -l | grep "aria2.sh update-bt-tracker")
+    crontab -l > "/tmp/crontab.bak"
+    sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
+    echo -e "\n0 3 * * 1 /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}" >> "/tmp/crontab.bak"
+    crontab "/tmp/crontab.bak"
+    rm -f "/tmp/crontab.bak"
+    cron_config=$(crontab -l | grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
     if [[ -z ${cron_config} ]]; then
         echo -e "${Error} Aria2 自动更新 BT-Tracker 开启失败 !" && exit 1
     else
+        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
         echo -e "${Info} Aria2 自动更新 BT-Tracker 开启成功 !"
-        Update_bt_tracker_cron
     fi
 }
 crontab_update_stop(){
-    crontab -l > "$file_1/crontab.bak"
-    sed -i "/aria2.sh update-bt-tracker/d" "$file_1/crontab.bak"
-    crontab "$file_1/crontab.bak"
-    rm -f "$file_1/crontab.bak"
-    cron_config=$(crontab -l | grep "aria2.sh update-bt-tracker")
+    crontab -l > "/tmp/crontab.bak"
+    sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
+    sed -i "/tracker.sh/d" "/tmp/crontab.bak"
+    crontab "/tmp/crontab.bak"
+    rm -f "/tmp/crontab.bak"
+    cron_config=$(crontab -l | grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
     if [[ ! -z ${cron_config} ]]; then
         echo -e "${Error} Aria2 自动更新 BT-Tracker 停止失败 !" && exit 1
     else
         echo -e "${Info} Aria2 自动更新 BT-Tracker 停止成功 !"
     fi
 }
-Update_bt_tracker_cron(){
+Update_bt_tracker(){
     check_installed_status
     check_pid
     [[ ! -z ${PID} ]] && /etc/init.d/aria2 stop
-    # https://github.com/ngosang/trackerslist
-    #bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
-    # https://github.com/XIU2/TrackersListCollection
-    bt_tracker_list=$(wget -qO- https://raw.githubusercontent.com/XIU2/TrackersListCollection/master/all.txt |awk NF|sed ":a;N;s/\n/,/g;ta")
-    if [ -z "`grep "bt-tracker" ${aria2_conf}`" ]; then
-        sed -i '$a bt-tracker='${bt_tracker_list} "${aria2_conf}"
-        echo -e "${Info} BT-Tracker 添加成功！"
-    else
-        sed -i "s@bt-tracker.*@bt-tracker=$bt_tracker_list@g" "${aria2_conf}"
-        echo -e "${Info} BT-Tracker 更新成功！"
-    fi
+    bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
     /etc/init.d/aria2 start
 }
 Update_aria2(){
@@ -566,20 +555,17 @@ Uninstall_aria2(){
     read -e -p "(默认: n):" unyn
     [[ -z ${unyn} ]] && unyn="n"
     if [[ ${unyn} == [Yy] ]]; then
-        crontab -l > "$file_1/crontab.bak"
-        sed -i "/aria2.sh/d" "$file_1/crontab.bak"
-        crontab "$file_1/crontab.bak"
-        rm -f "$file_1/crontab.bak"
+        crontab -l > "/tmp/crontab.bak"
+        sed -i "/aria2.sh/d" "/tmp/crontab.bak"
+        sed -i "/tracker.sh/d" "/tmp/crontab.bak"
+        crontab "/tmp/crontab.bak"
+        rm -f "/tmp/crontab.bak"
         check_pid
         [[ ! -z $PID ]] && kill -9 ${PID}
         Read_config "un"
         Del_iptables
         Save_iptables
-        cd "${Folder}"
-        make uninstall
-        cd ..
         rm -rf "${aria2c}"
-        rm -rf "${Folder}"
         rm -rf "${file}"
         if [[ ${release} = "centos" ]]; then
             chkconfig --del aria2
@@ -627,10 +613,7 @@ Update_Shell(){
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh" && chmod +x aria2.sh
     echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
-action=$1
-if [[ "${action}" == "update-bt-tracker" ]]; then
-    Update_bt_tracker_cron
-else
+
 echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- \033[1;35mP3TERX.COM\033[0m --
   
@@ -699,13 +682,13 @@ case "$num" in
     Clean_Log
     ;;
     11)
-    Update_bt_tracker_cron
+    Update_bt_tracker
     ;;
     12)
-    Update_bt_tracker
+    Update_bt_tracker_cron
     ;;
     *)
     echo "请输入正确数字 [0-12]"
     ;;
 esac
-fi
+

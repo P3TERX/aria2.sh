@@ -12,29 +12,19 @@ https://github.com/P3TERX/aria2.sh
 
 CentOS 6+ / Debian 6+ / Ubuntu 14.04+
 
-## 下载安装
-
-执行下面的代码下载并运行脚本，出现脚本操作菜单输入 `1` 开始安装。
-
-```shell
-wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
-```
-
 ## 使用说明
 
-* 进入下载脚本的目录并运行脚本
-  
-  ```
-  ./aria2.sh
-  ```
+* 执行下面的代码运行脚本
+```
+bash <(wget -qO- git.io/aria2.sh)
+```
 
 * 选择你要执行的选项
-  
-  ```
-  Aria2 一键安装管理脚本 [v2.0.8]
+```
+  Aria2 一键安装管理脚本 [v2.10.0]
   -- P3TERX.COM --
   
-  1. 升级脚本
+  0. 升级脚本
   ————————————
   1. 安装 Aria2
   2. 更新 Aria2
@@ -56,7 +46,7 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
   当前状态: 已安装 并 已启动
   
   请输入数字 [0-12]:
-  ```
+```
 
 ## 其他操作
 
@@ -76,13 +66,16 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 
 ## 附加功能
 
-整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2_perfect_config)，在安装 Aria2 的过程中会下载这套配置方案，包含了配置文件、附加功能脚本等文件，用于实现 Aria2 功能的增强和扩展。
+整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)，在安装 Aria2 的过程中会下载这套配置方案，包含了配置文件、附加功能脚本等文件，用于实现 Aria2 功能的增强和扩展，提升 Aria2 的使用体验。
 
 增强功能：
 
-* 提升BT下载率和下载速度
-* 下载完成删除残留的`.aria2`后缀名文件
-* 下载错误或取消下载删除未完成的文件
+* 提升 BT 下载率和下载速度
+* 重启后不丢失任务进度、不重复下载
+* 下载错误或取消下载自动删除未完成的文件防止磁盘空间占用
+* 下载完成自动清除`.aria2`后缀名文件
+* 更好的 PT 下载支持
+* 防版权投诉、防迅雷吸血
 
 扩展功能：
 
@@ -91,12 +84,20 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 
 ## 更新日志
 
-### 2019-11-23 v2.0.8
+### 2020-02-17 v2.1.0
 
-- 修改 Trackers 来源([XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection))
+> **TIPS:** 卸载后升级，否则会导致功能异常。
+
+- 适配新版 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)
+- 分离 trackers 更新功能
+- 优化功能，完善细节，修复若干 bug
 
 <details>
 <summary>历史记录</summary>
+
+### 2019-11-23 v2.0.8
+
+- 修改 Trackers 来源([XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection))
 
 ### 2019-10-12 v2.0.7
 
@@ -139,3 +140,6 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 - 感谢 Toyo 大佬
 
 </details>
+
+## Lisence
+[MIT](https://github.com/P3TERX/aria2.sh/blob/master/LICENSE) © Toyo x P3TERX
