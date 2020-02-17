@@ -1,8 +1,8 @@
 # Aria2 一键安装管理脚本
 
-[![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square&label=LICENSE)](https://github.com/P3TERX/aria2.sh/blob/master/LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/P3TERX/aria2.sh.svg?style=flat-square&label=Stars)](https://github.com/P3TERX/aria2.sh/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/P3TERX/aria2.sh.svg?style=flat-square&label=Forks)](https://github.com/P3TERX/aria2.sh/fork)
+[![LICENSE](https://img.shields.io/github/license/P3TERX/aria2.sh?style=flat-square)](https://github.com/P3TERX/aria2.sh/blob/master/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/P3TERX/aria2.sh.svg?style=flat-square&label=Stars&logo=github)](https://github.com/P3TERX/aria2.sh/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/P3TERX/aria2.sh.svg?style=flat-square&label=Forks&logo=github)](https://github.com/P3TERX/aria2.sh/fork)
 
 ## 项目地址
 
@@ -11,6 +11,10 @@ https://github.com/P3TERX/aria2.sh
 ## 系统要求
 
 CentOS 6+ / Debian 6+ / Ubuntu 14.04+
+
+## 架构支持
+
+x86_64 / i386 / ARM64 / ARM32v7 / ARM32v6
 
 ## 使用说明
 
@@ -21,7 +25,7 @@ bash <(wget -qO- git.io/aria2.sh)
 
 * 选择你要执行的选项
 ```
-  Aria2 一键安装管理脚本 [v2.10.0]
+  Aria2 一键安装管理脚本 [v2.2.0]
   -- P3TERX.COM --
   
   0. 升级脚本
@@ -84,9 +88,15 @@ bash <(wget -qO- git.io/aria2.sh)
 
 ## 更新日志
 
-### 2020-02-17 v2.1.0
+> **TIPS:** 升级 v2.1.0 之后的版本请先卸载，否则会导致功能异常。
 
-> **TIPS:** 卸载后升级，否则会导致功能异常。
+### 2020-02-18 v2.2.0
+
+- 更换静态编译二进制文件下载来源（[P3TERX/aria2-builder](https://github.com/P3TERX/aria2-builder)）
+- 适配 ARM64、ARM32v7、ARM32v6 架构。
+- 优化文案细节。
+
+### 2020-02-17 v2.1.0
 
 - 适配新版 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)
 - 分离 trackers 更新功能

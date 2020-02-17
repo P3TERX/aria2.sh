@@ -56,12 +56,12 @@ View_Config(){
 	fi
 	[[ -z "${Download_dir}" ]] && Download_dir="/usr/local/aria2/"
 	[[ -z "${RPC_listen_port}" ]] && RPC_listen_port="6800"
-	[[ -z "${RPC_secret}" ]] && RPC_secret="无令牌密码"
+	[[ -z "${RPC_secret}" ]] && RPC_secret="无令牌密钥"
 	clear
 	echo -e "\nAria2 简单配置信息：\n
  地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}
  端口\t: ${Green_font_prefix}${RPC_listen_port}${Font_color_suffix}
- 密码\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
+ 密钥\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
  目录\t: ${Green_font_prefix}${Download_dir}${Font_color_suffix}\n"
 }
 do_start(){

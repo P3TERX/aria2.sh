@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.1.0
+# Version: 2.2.0
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.1.0"
+sh_ver="2.2.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 file="/root/.aria2"
@@ -47,7 +47,8 @@ check_sys(){
     elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
         release="centos"
     fi
-    bit=`uname -m`
+    ARCH=`uname -m`
+    [ $(command -v dpkg) ] && dpkgARCH=$(dpkg --print-architecture | awk -F- '{ print $NF }')
 }
 check_installed_status(){
     [[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 没有安装，请检查 !" && exit 1
@@ -72,12 +73,12 @@ check_pid(){
     PID=`ps -ef| grep "aria2c"| grep -v grep| grep -v "aria2.sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 check_new_ver(){
-    echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/q3aql/aria2-static-builds/releases ]"
+    echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/P3TERX/aria2-builder/releases ]"
     read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
     if [[ -z ${aria2_new_ver} ]]; then
-        aria2_new_ver=$(wget -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
+        aria2_new_ver=$(wget -qO- https://api.github.com/repos/P3TERX/aria2-builder/releases | grep -o '"tag_name": ".*"' | head -n 1 | sed 's/"//g' | sed 's/tag_name: //g')
         if [[ -z ${aria2_new_ver} ]]; then
-            echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
+            echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/P3TERX/aria2-builder/releases ]"
             read -e -p "请输入版本号 [ 格式如 1.35.0 ] :" aria2_new_ver
             [[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
         else
@@ -107,42 +108,41 @@ check_ver_comparison(){
 }
 Download_aria2(){
     update_dl=$1
-    if [[ ${bit} == "x86_64" ]]; then
-        bit="64bit"
-    elif [[ ${bit} == i*86 ]]; then
-        bit="32bit"
+    if [[ $ARCH == i*86 || $dpkgARCH == i*86 ]]; then
+        ARCH="i386"
+    elif [[ $ARCH == "x86_64" || $dpkgARCH == "amd64" ]]; then
+        ARCH="amd64"
+    elif [[ $ARCH == "aarch64" || $dpkgARCH == "arm64" ]]; then
+        ARCH="arm64"
+    elif [[ $ARCH == "armv7l" || $dpkgARCH == "armhf" ]]; then
+        ARCH="armhf"
     else
-        bit="arm-rbpi"
+        echo -e "${Error} 不支持此 CPU 架构。"
+        exit 1
     fi
-    wget -N "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-${bit}-build1.tar.bz2"
-    Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-${bit}-build1"
-    
-    [[ ! -s "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
-    tar jxf "${Aria2_Name}.tar.bz2"
-    [[ ! -e "${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
+    wget -O- "https://github.com/P3TERX/aria2-builder/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver}-static-linux-${ARCH}.tar.gz" | tar -zxC .
+    [[ ! -s "aria2c" ]] && echo -e "${Error} Aria2 下载失败 !" && exit 1
     [[ ${update_dl} = "update" ]] && rm -f "${aria2c}"
-    cp "${Aria2_Name}/aria2c" /usr/local/bin
-    [[ ! -e /etc/ssl/certs/ca-certificates.crt ]] && (mkdir -p /etc/ssl/certs && cp ${Aria2_Name}/ca-certificates.crt /etc/ssl/certs)
-    rm -rf "${Aria2_Name}.tar.bz2" "${Aria2_Name}"
+    mv aria2c /usr/local/bin
     [[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 主程序安装失败！" && exit 1
     chmod +x ${aria2c}
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf(){
     mkdir -p "${file}" && cd "${file}"
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/aria2.conf"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/aria2.conf"
     [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/autoupload.sh"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/autoupload.sh"
     [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.aria2.sh"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.aria2.sh"
     [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/delete.sh"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.sh"
     [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/info.sh"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/info.sh"
     [[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht.dat"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht.dat"
     [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2_perfect_config/master/dht6.dat"
+    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht6.dat"
     [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
     touch aria2.session
     chmod +x *.sh
@@ -171,11 +171,12 @@ Service_aria2(){
 Installation_dependency(){
     if [[ ${release} = "centos" ]]; then
         yum update
-        yum install nano ca-certificates -y
+        yum install nano ca-certificates findutils tar gzip dpkg -y
     else
         apt-get update
-        apt-get install nano ca-certificates -y
+        apt-get install nano ca-certificates findutils tar gzip dpkg -y
     fi
+    wget -qO- git.io/ca-certificates.sh | bash
 }
 Install_aria2(){
     check_root
@@ -224,10 +225,10 @@ Restart_aria2(){
 Set_aria2(){
     check_installed_status
     echo && echo -e "你要做什么？
- ${Green_font_prefix}1.${Font_color_suffix}  修改 Aria2 RPC密码
- ${Green_font_prefix}2.${Font_color_suffix}  修改 Aria2 RPC端口
+ ${Green_font_prefix}1.${Font_color_suffix}  修改 Aria2 RPC 密钥
+ ${Green_font_prefix}2.${Font_color_suffix}  修改 Aria2 RPC 端口
  ${Green_font_prefix}3.${Font_color_suffix}  修改 Aria2 文件下载位置
- ${Green_font_prefix}4.${Font_color_suffix}  修改 Aria2 密码+端口+文件下载位置
+ ${Green_font_prefix}4.${Font_color_suffix}  修改 Aria2 密钥 + 端口 + 文件下载位置
  ${Green_font_prefix}5.${Font_color_suffix}  手动 打开配置文件修改
  ————————————
  ${Green_font_prefix}0.${Font_color_suffix}  重置/更新 Aria2 完美配置" && echo
@@ -259,34 +260,34 @@ Set_aria2_RPC_passwd(){
     else
         aria2_passwd_1=${aria2_passwd}
     fi
-    echo -e "请输入要设置的 Aria2 RPC密码(旧密码为：${Green_font_prefix}${aria2_passwd_1}${Font_color_suffix})"
-    read -e -p "(默认密码: 随机生成 密码请不要包含等号 = 和井号 #):" aria2_RPC_passwd
+    echo -e "请输入要设置的 Aria2 RPC 密钥(旧密钥为：${Green_font_prefix}${aria2_passwd_1}${Font_color_suffix})"
+    read -e -p "(默认密钥: 随机生成 密钥请不要包含等号 = 和井号 #):" aria2_RPC_passwd
     echo
     [[ -z "${aria2_RPC_passwd}" ]] && aria2_RPC_passwd=$(date +%s%N | md5sum | head -c 20)
     if [[ "${aria2_passwd}" != "${aria2_RPC_passwd}" ]]; then
         if [[ -z "${aria2_passwd}" ]]; then
             echo -e "\nrpc-secret=${aria2_RPC_passwd}" >> ${aria2_conf}
             if [[ $? -eq 0 ]];then
-                echo -e "${Info} 密码修改成功！新密码为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}(因为找不到旧配置参数，所以自动加入配置文件底部)"
+                echo -e "${Info} 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}(因为找不到旧配置参数，所以自动加入配置文件底部)"
                 if [[ ${read_123} != "1" ]]; then
                     Restart_aria2
                 fi
             else 
-                echo -e "${Error} 密码修改失败！旧密码为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
+                echo -e "${Error} 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
             fi
         else
             sed -i 's/^rpc-secret='${aria2_passwd}'/rpc-secret='${aria2_RPC_passwd}'/g' ${aria2_conf}
             if [[ $? -eq 0 ]];then
-                echo -e "${Info} 密码修改成功！新密码为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}"
+                echo -e "${Info} 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}"
                 if [[ ${read_123} != "1" ]]; then
                     Restart_aria2
                 fi
             else 
-                echo -e "${Error} 密码修改失败！旧密码为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
+                echo -e "${Error} 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
             fi
         fi
     else
-        echo -e "${Error} 新密码与旧密码一致，取消..."
+        echo -e "${Error} 新密钥与旧密钥一致，取消..."
     fi
 }
 Set_aria2_RPC_port(){
@@ -299,7 +300,7 @@ Set_aria2_RPC_port(){
     else
         aria2_port_1=${aria2_port}
     fi
-    echo -e "请输入要设置的 Aria2 RPC端口(旧端口为：${Green_font_prefix}${aria2_port_1}${Font_color_suffix})"
+    echo -e "请输入要设置的 Aria2 RPC 端口(旧端口为：${Green_font_prefix}${aria2_port_1}${Font_color_suffix})"
     read -e -p "(默认端口: 6800):" aria2_RPC_port
     echo
     [[ -z "${aria2_RPC_port}" ]] && aria2_RPC_port="6800"
@@ -320,7 +321,7 @@ Set_aria2_RPC_port(){
         else
             sed -i 's/^rpc-listen-port='${aria2_port}'/rpc-listen-port='${aria2_RPC_port}'/g' ${aria2_conf}
             if [[ $? -eq 0 ]];then
-                echo -e "${Info} 端口修改成功！新密码为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
+                echo -e "${Info} 端口修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
                 Del_iptables
                 Add_iptables
                 Save_iptables
@@ -328,7 +329,7 @@ Set_aria2_RPC_port(){
                     Restart_aria2
                 fi
             else 
-                echo -e "${Error} 端口修改失败！旧密码为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
+                echo -e "${Error} 端口修改失败！旧密钥为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
             fi
         fi
     else
@@ -465,12 +466,12 @@ View_Aria2(){
     fi
     [[ -z "${aria2_dir}" ]] && aria2_dir="找不到配置参数"
     [[ -z "${aria2_port}" ]] && aria2_port="找不到配置参数"
-    [[ -z "${aria2_passwd}" ]] && aria2_passwd="找不到配置参数(或无密码)"
+    [[ -z "${aria2_passwd}" ]] && aria2_passwd="找不到配置参数(或无密钥)"
     clear
     echo -e "\nAria2 简单配置信息：\n
  地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}
  端口\t: ${Green_font_prefix}${aria2_port}${Font_color_suffix}
- 密码\t: ${Green_font_prefix}${aria2_passwd}${Font_color_suffix}
+ 密钥\t: ${Green_font_prefix}${aria2_passwd}${Font_color_suffix}
  目录\t: ${Green_font_prefix}${aria2_dir}${Font_color_suffix}\n"
 }
 View_Log(){
@@ -691,4 +692,3 @@ case "$num" in
     echo "请输入正确数字 [0-12]"
     ;;
 esac
-
