@@ -3,19 +3,19 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.0
+# Version: 2.2.1
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.0"
+sh_ver="2.2.1"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-file="/root/.aria2"
+aria2_conf_path="/root/.aria2"
 download_path="/root/Download"
-aria2_conf="/root/.aria2/aria2.conf"
-aria2_log="/root/.aria2/aria2.log"
+aria2_conf="${aria2_conf_path}/aria2.conf"
+aria2_log="${aria2_conf_path}/aria2.log"
 aria2c="/usr/local/bin/aria2c"
 Crontab_file="/usr/bin/crontab"
 Green_font_prefix="\033[32m"
@@ -129,25 +129,25 @@ Download_aria2(){
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf(){
-    mkdir -p "${file}" && cd "${file}"
+    mkdir -p "${aria2_conf_path}" && cd "${aria2_conf_path}"
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/aria2.conf"
-    [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/autoupload.sh"
-    [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.aria2.sh"
-    [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.sh"
-    [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/info.sh"
-    [[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht.dat"
-    [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht6.dat"
-    [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${file}" && exit 1
+    [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     touch aria2.session
     chmod +x *.sh
-    sed -i "/^downloadpath=/c\downloadpath='${download_path}'" ${file}/*.sh
-    sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${download_path}'" ${file}/*.sh
+    sed -i "/^downloadpath=/c\downloadpath='${download_path}'" ${aria2_conf_path}/*.sh
+    sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${download_path}'" ${aria2_conf_path}/*.sh
     sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
     echo -e "${Info} Aria2 完美配置下载完成！"
 }
@@ -367,8 +367,8 @@ Set_aria2_RPC_dir(){
                 aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
                 aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}"|sed 's/\//\\\//g')
                 sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
-                sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${file}/*.sh
-                sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${file}/*.sh
+                sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+                sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
                 if [[ $? -eq 0 ]];then
                     echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
                     if [[ ${read_123} != "1" ]]; then
@@ -416,8 +416,8 @@ ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文�
         mkdir -p ${aria2_dir}
         aria2_dir_2=$(echo "${aria2_dir}"|sed 's/\//\\\//g')
         aria2_dir_old_2=$(echo "${aria2_dir_old}"|sed 's/\//\\\//g')
-        sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${file}/*.sh
-        sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${file}/*.sh
+        sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+        sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
     fi
     Restart_aria2
 }
@@ -487,11 +487,11 @@ Clean_Log(){
 Update_bt_tracker_cron(){
     check_installed_status
     check_crontab_installed_status
-    crontab_update_status=$(crontab -l|grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
+    crontab_update_status=$(crontab -l|grep "tracker.sh")
     if [[ -z "${crontab_update_status}" ]]; then
         echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
-        echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
-        read -e -p "注意：该功能会定时重启 Aria2！(默认: y):" crontab_update_status_ny
+        echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(可能会增强 BT 下载速率)[Y/n] \c"
+        read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
             crontab_update_start
@@ -500,8 +500,8 @@ Update_bt_tracker_cron(){
         fi
     else
         echo && echo -e "当前自动更新模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-        echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
-        read -e -p "注意：该功能会定时重启 Aria2！(默认: n):" crontab_update_status_ny
+        echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？[y/N] \c"
+        read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
             crontab_update_stop
@@ -513,15 +513,16 @@ Update_bt_tracker_cron(){
 crontab_update_start(){
     crontab -l > "/tmp/crontab.bak"
     sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
-    echo -e "\n0 3 * * 1 /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}" >> "/tmp/crontab.bak"
+    sed -i "/tracker.sh/d" "/tmp/crontab.bak"
+    echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_path}/tracker.log" >> "/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
-    cron_config=$(crontab -l | grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
+    cron_config=$(crontab -l | grep "tracker.sh")
     if [[ -z ${cron_config} ]]; then
-        echo -e "${Error} Aria2 自动更新 BT-Tracker 开启失败 !" && exit 1
+        echo && echo -e "${Error} Aria2 自动更新 BT-Tracker 开启失败 !" && exit 1
     else
-        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
-        echo -e "${Info} Aria2 自动更新 BT-Tracker 开启成功 !"
+        Update_bt_tracker
+        echo && echo -e "${Info} Aria2 自动更新 BT-Tracker 开启成功 !"
     fi
 }
 crontab_update_stop(){
@@ -530,19 +531,21 @@ crontab_update_stop(){
     sed -i "/tracker.sh/d" "/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
-    cron_config=$(crontab -l | grep "bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}")
+    cron_config=$(crontab -l | grep "tracker.sh")
     if [[ ! -z ${cron_config} ]]; then
-        echo -e "${Error} Aria2 自动更新 BT-Tracker 停止失败 !" && exit 1
+        echo && echo -e "${Error} Aria2 自动更新 BT-Tracker 停止失败 !" && exit 1
     else
-        echo -e "${Info} Aria2 自动更新 BT-Tracker 停止成功 !"
+        echo && echo -e "${Info} Aria2 自动更新 BT-Tracker 停止成功 !"
     fi
 }
 Update_bt_tracker(){
     check_installed_status
     check_pid
-    [[ ! -z ${PID} ]] && /etc/init.d/aria2 stop
-    bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
-    /etc/init.d/aria2 start
+    [[ -z $PID ]] && {
+        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
+    } || {
+        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC
+    }
 }
 Update_aria2(){
     check_installed_status
@@ -567,7 +570,7 @@ Uninstall_aria2(){
         Del_iptables
         Save_iptables
         rm -rf "${aria2c}"
-        rm -rf "${file}"
+        rm -rf "${aria2_conf_path}"
         if [[ ${release} = "centos" ]]; then
             chkconfig --del aria2
         else
