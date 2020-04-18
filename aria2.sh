@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.1
+# Version: 2.2.2
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.1"
+sh_ver="2.2.2"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -618,27 +618,26 @@ Update_Shell(){
     echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 
-echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- \033[1;35mP3TERX.COM\033[0m --
-  
+echo && echo -e " Aria2 一键安装管理脚本 增强版 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix} by \033[1;35mP3TERX.COM\033[0m
+ 
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
-————————————
+————————————————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Aria2
  ${Green_font_prefix} 2.${Font_color_suffix} 更新 Aria2
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Aria2
-————————————
+————————————————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Aria2
  ${Green_font_prefix} 5.${Font_color_suffix} 停止 Aria2
  ${Green_font_prefix} 6.${Font_color_suffix} 重启 Aria2
-————————————
+————————————————————————
  ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置
  ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置
  ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志
  ${Green_font_prefix}10.${Font_color_suffix} 清空 日志
-————————————
+————————————————————————
  ${Green_font_prefix}11.${Font_color_suffix} 手动更新 BT-Tracker
  ${Green_font_prefix}12.${Font_color_suffix} 自动更新 BT-Tracker
-————————————" && echo
+————————————————————————" && echo
 if [[ -e ${aria2c} ]]; then
     check_pid
     if [[ ! -z "${PID}" ]]; then
