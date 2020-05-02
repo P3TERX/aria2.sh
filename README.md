@@ -14,12 +14,12 @@ Aria2 是一个功能非常强大且齐全的下载工具，它支持 BT、磁�
     - 下载错误或取消下载自动删除未完成的文件防止磁盘空间占用
     - 下载完成自动清除`.aria2`后缀名文件
     - 更好的 PT 下载支持
-    - 防版权投诉
-    - 防迅雷吸血（部分版本）
+    - 有一定的防版权投诉、防迅雷吸血能力
 
 - 使用 [aria2-builder](https://github.com/P3TERX/aria2-builder) 项目最新静态编译二进制文件
     - 多平台：`amd64`, `i386`, `arm64`, `armhf`
     - 全功能：`Async DNS`, `BitTorrent`, `Firefox3 Cookie`, `GZip`, `HTTPS`, `Message Digest`, `Metalink`, `XML-RPC`, `SFTP`
+    - 无单服务器线程数限制，最大值可以为无限大。
     - 最新依赖库，提供更安全、稳定、快速的下载体验
     - 通过 CI 服务持续更新最新版本
 
@@ -108,6 +108,10 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 ## 更新日志
 
 > **TIPS:** 如果正在使用 v2.1.0 前的版本，请卸载后再升级，否则会导致功能异常。
+
+### 2020-05-03 v2.2.3
+
+- 为了适配 [P3TERX/aria2-builder](https://github.com/P3TERX/aria2-builder) 项目的更新策略，目前临时修改下载链接获取规则，`更新 Aria2` 可能会一直提示有新版本，无需理会。
 
 ### 2020-04-14 v2.2.1
 
