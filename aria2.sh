@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.2
+# Version: 2.2.3
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.2"
+sh_ver="2.2.3"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -76,7 +76,7 @@ check_new_ver(){
     echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/P3TERX/aria2-builder/releases ]"
     read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
     if [[ -z ${aria2_new_ver} ]]; then
-        aria2_new_ver=$(wget -qO- https://api.github.com/repos/P3TERX/aria2-builder/releases | grep -o '"tag_name": ".*"' | head -n 1 | sed 's/"//g' | sed 's/tag_name: //g')
+        aria2_new_ver=$(wget -qO- https://api.github.com/repos/P3TERX/aria2-builder/releases/latest | grep -o '"tag_name": ".*"' | head -n 1 | cut -d'"' -f4)
         if [[ -z ${aria2_new_ver} ]]; then
             echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/P3TERX/aria2-builder/releases ]"
             read -e -p "请输入版本号 [ 格式如 1.35.0 ] :" aria2_new_ver
@@ -120,7 +120,7 @@ Download_aria2(){
         echo -e "${Error} 不支持此 CPU 架构。"
         exit 1
     fi
-    wget -O- "https://github.com/P3TERX/aria2-builder/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver}-static-linux-${ARCH}.tar.gz" | tar -zxC .
+    wget -O- "https://github.com/P3TERX/aria2-builder/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver%_*}-static-linux-${ARCH}.tar.gz" | tar -zx
     [[ ! -s "aria2c" ]] && echo -e "${Error} Aria2 下载失败 !" && exit 1
     [[ ${update_dl} = "update" ]] && rm -f "${aria2c}"
     mv aria2c /usr/local/bin
