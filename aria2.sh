@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.4
+# Version: 2.2.5
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.4"
+sh_ver="2.2.5"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -321,7 +321,7 @@ Set_aria2_RPC_port() {
         else
             sed -i 's/^rpc-listen-port='${aria2_port}'/rpc-listen-port='${aria2_RPC_port}'/g' ${aria2_conf}
             if [[ $? -eq 0 ]]; then
-                echo -e "${Info} 端口修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
+                echo -e "${Info} 端口修改成功！新端口为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
                 Del_iptables
                 Add_iptables
                 Save_iptables
@@ -329,7 +329,7 @@ Set_aria2_RPC_port() {
                     Restart_aria2
                 fi
             else
-                echo -e "${Error} 端口修改失败！旧密钥为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
+                echo -e "${Error} 端口修改失败！旧端口为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
             fi
         fi
     else
@@ -445,11 +445,12 @@ Read_config() {
         fi
     else
         conf_text=$(cat ${aria2_conf} | grep -v '#')
-        aria2_dir=$(echo -e "${conf_text}" | grep "dir=" | awk -F "=" '{print $NF}')
-        aria2_port=$(echo -e "${conf_text}" | grep "rpc-listen-port=" | awk -F "=" '{print $NF}')
-        aria2_passwd=$(echo -e "${conf_text}" | grep "rpc-secret=" | awk -F "=" '{print $NF}')
+        aria2_dir=$(echo -e "${conf_text}" | grep "^dir=" | awk -F "=" '{print $NF}')
+        aria2_port=$(echo -e "${conf_text}" | grep "^rpc-listen-port=" | awk -F "=" '{print $NF}')
+        aria2_passwd=$(echo -e "${conf_text}" | grep "^rpc-secret=" | awk -F "=" '{print $NF}')
+        aria2_bt_port=$(echo -e "${conf_text}" | grep "^listen-port=" | awk -F "=" '{print $NF}')
+        aria2_dht_port=$(echo -e "${conf_text}" | grep "^dht-listen-port=" | awk -F "=" '{print $NF}')
     fi
-
 }
 View_Aria2() {
     check_installed_status
@@ -587,11 +588,13 @@ Uninstall_aria2() {
 }
 Add_iptables() {
     iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${aria2_RPC_port} -j ACCEPT
-    iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${aria2_RPC_port} -j ACCEPT
+    iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${aria2_bt_port} -j ACCEPT
+    iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${aria2_dht_port} -j ACCEPT
 }
 Del_iptables() {
     iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${aria2_port} -j ACCEPT
-    iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${aria2_port} -j ACCEPT
+    iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${aria2_bt_port} -j ACCEPT
+    iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${aria2_dht_port} -j ACCEPT
 }
 Save_iptables() {
     if [[ ${release} == "centos" ]]; then
