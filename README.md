@@ -63,7 +63,7 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 * 选择你要执行的选项
 ```
-  Aria2 一键安装管理脚本 增强版 [v2.2.2] by P3TERX.COM
+  Aria2 一键安装管理脚本 增强版 [v2.2.5] by P3TERX.COM
   
   0. 升级脚本
 ————————————————————————
@@ -109,9 +109,14 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 > **TIPS:** 如果正在使用 v2.1.0 前的版本，请卸载后再升级，否则会导致功能异常。
 
-### 2020-05-03 v2.2.3
+### 2020-05-09 v2.2.5
 
-- 为了适配 [P3TERX/aria2-builder](https://github.com/P3TERX/aria2-builder) 项目的更新策略，目前临时修改下载链接获取规则，`更新 Aria2` 可能会一直提示有新版本，无需理会。
+- 新增 IPv6 地址检测功能
+- 优化防火墙设置，自动开放必要的端口。
+- 修复部分历史遗留 bug
+
+<details>
+<summary>历史记录</summary>
 
 ### 2020-04-14 v2.2.1
 
@@ -129,9 +134,6 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 - 适配新版 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)
 - 分离 trackers 更新功能
 - 优化功能，完善细节，修复若干 bug
-
-<details>
-<summary>历史记录</summary>
 
 ### 2019-11-23 v2.0.8
 
