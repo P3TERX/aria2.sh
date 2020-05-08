@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.3
+# Version: 2.2.4
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.3"
+sh_ver="2.2.4"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -454,25 +454,28 @@ Read_config() {
 View_Aria2() {
     check_installed_status
     Read_config
-    ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-    if [[ -z "${ip}" ]]; then
-        ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-        if [[ -z "${ip}" ]]; then
-            ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-            if [[ -z "${ip}" ]]; then
-                ip="VPS_IP(外网IP检测失败)"
-            fi
-        fi
-    fi
+    IPV4=$(
+        wget -qO- -t1 -T2 -4 ip.sb ||
+            wget -qO- -t1 -T2 -4 ifconfig.io ||
+            wget -qO- -t1 -T2 -4 www.trackip.net/ip
+    )
+    [[ -z "${IPV4}" ]] && IPV4="IPv4 地址检测失败"
+    IPV6=$(
+        wget -qO- -t1 -T2 -6 ip.sb ||
+            wget -qO- -t1 -T2 -6 ifconfig.io ||
+            wget -qO- -t1 -T2 -6 www.trackip.net/ip
+    )
+    [[ -z "${IPV6}" ]] && IPV6="IPv6 地址检测失败"
     [[ -z "${aria2_dir}" ]] && aria2_dir="找不到配置参数"
     [[ -z "${aria2_port}" ]] && aria2_port="找不到配置参数"
     [[ -z "${aria2_passwd}" ]] && aria2_passwd="找不到配置参数(或无密钥)"
     clear
     echo -e "\nAria2 简单配置信息：\n
- 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}
- 端口\t: ${Green_font_prefix}${aria2_port}${Font_color_suffix}
- 密钥\t: ${Green_font_prefix}${aria2_passwd}${Font_color_suffix}
- 目录\t: ${Green_font_prefix}${aria2_dir}${Font_color_suffix}\n"
+ IPv4 地址\t: ${Green_font_prefix}${IPV4}${Font_color_suffix}
+ IPv6 地址\t: ${Green_font_prefix}${IPV6}${Font_color_suffix}
+ RPC 端口\t: ${Green_font_prefix}${aria2_port}${Font_color_suffix}
+ RPC 密钥\t: ${Green_font_prefix}${aria2_passwd}${Font_color_suffix}
+ 下载目录\t: ${Green_font_prefix}${aria2_dir}${Font_color_suffix}\n"
 }
 View_Log() {
     [[ ! -e ${aria2_log} ]] && echo -e "${Error} Aria2 日志文件不存在 !" && exit 1

@@ -44,25 +44,28 @@ Read_config() {
 }
 View_Config() {
 	Read_config
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP(外网IP检测失败)"
-			fi
-		fi
-	fi
+	IPV4=$(
+		wget -qO- -t1 -T2 -4 ip.sb ||
+			wget -qO- -t1 -T2 -4 ifconfig.io ||
+			wget -qO- -t1 -T2 -4 www.trackip.net/ip
+	)
+	[[ -z "${IPV4}" ]] && IPV4="IPv4 地址检测失败"
+	IPV6=$(
+		wget -qO- -t1 -T2 -6 ip.sb ||
+			wget -qO- -t1 -T2 -6 ifconfig.io ||
+			wget -qO- -t1 -T2 -6 www.trackip.net/ip
+	)
+	[[ -z "${IPV6}" ]] && IPV6="IPv6 地址检测失败"
 	[[ -z "${Download_dir}" ]] && Download_dir="/usr/local/aria2/"
 	[[ -z "${RPC_listen_port}" ]] && RPC_listen_port="6800"
 	[[ -z "${RPC_secret}" ]] && RPC_secret="无令牌密钥"
 	clear
 	echo -e "\nAria2 简单配置信息：\n
- 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}
- 端口\t: ${Green_font_prefix}${RPC_listen_port}${Font_color_suffix}
- 密钥\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
- 目录\t: ${Green_font_prefix}${Download_dir}${Font_color_suffix}\n"
+ IPv4 地址\t: ${Green_font_prefix}${IPV4}${Font_color_suffix}
+ IPv6 地址\t: ${Green_font_prefix}${IPV6}${Font_color_suffix}
+ RPC 端口\t: ${Green_font_prefix}${RPC_listen_port}${Font_color_suffix}
+ RPC 密钥\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
+ 下载目录\t: ${Green_font_prefix}${Download_dir}${Font_color_suffix}\n"
 }
 do_start() {
 	check_running
