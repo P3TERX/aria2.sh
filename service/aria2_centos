@@ -27,24 +27,24 @@ Info="[${Green_font_prefix}信息${Font_color_suffix}]"
 Error="[${Red_font_prefix}错误${Font_color_suffix}]"
 RETVAL=0
 
-check_running(){
-	PID=`ps -ef |grep "${NAME_BIN}" |grep -v "grep" | grep -v "aria2.sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+check_running() {
+	PID=$(ps -ef | grep "${NAME_BIN}" | grep -v "grep" | grep -v "aria2.sh" | grep -v "init.d" | grep -v "service" | awk '{print $2}')
 	if [[ ! -z ${PID} ]]; then
 		return 0
 	else
 		return 1
 	fi
 }
-Read_config(){
+Read_config() {
 	[[ ! -e ${CONFIG} ]] && echo -e "${Error} ${NAME} 配置文件不存在 !" && exit 1
-	Download_dir=$(cat ${CONFIG}|grep -v '#'|grep "dir=")
-	[[ ! -z "${Download_dir}" ]] && Download_dir=$(echo "${Download_dir}"|awk -F '=' '{print $2}')
-	RPC_listen_port=$(cat ${CONFIG}|grep -v '#'|grep "rpc-listen-port=")
-	[[ ! -z "${RPC_listen_port}" ]] && RPC_listen_port=$(echo "${RPC_listen_port}"|awk -F '=' '{print $2}')
-	RPC_secret=$(cat ${CONFIG}|grep -v '#'|grep "rpc-secret=")
-	[[ ! -z "${RPC_secret}" ]] && RPC_secret=$(echo "${RPC_secret}"|awk -F '=' '{print $2}')
+	Download_dir=$(cat ${CONFIG} | grep -v '#' | grep "dir=")
+	[[ ! -z "${Download_dir}" ]] && Download_dir=$(echo "${Download_dir}" | awk -F '=' '{print $2}')
+	RPC_listen_port=$(cat ${CONFIG} | grep -v '#' | grep "rpc-listen-port=")
+	[[ ! -z "${RPC_listen_port}" ]] && RPC_listen_port=$(echo "${RPC_listen_port}" | awk -F '=' '{print $2}')
+	RPC_secret=$(cat ${CONFIG} | grep -v '#' | grep "rpc-secret=")
+	[[ ! -z "${RPC_secret}" ]] && RPC_secret=$(echo "${RPC_secret}" | awk -F '=' '{print $2}')
 }
-View_Config(){
+View_Config() {
 	Read_config
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 	if [[ -z "${ip}" ]]; then
@@ -66,14 +66,14 @@ View_Config(){
  密钥\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
  目录\t: ${Green_font_prefix}${Download_dir}${Font_color_suffix}\n"
 }
-do_start(){
+do_start() {
 	check_running
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		echo -e "${Info} $NAME 启动中..."
 		ulimit -n 51200
-		nohup aria2c --conf-path="${CONFIG}" >> "${LOG}" 2>&1 &
+		nohup aria2c --conf-path="${CONFIG}" >>"${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
@@ -84,7 +84,7 @@ do_start(){
 		fi
 	fi
 }
-do_stop(){
+do_stop() {
 	check_running
 	if [[ $? -eq 0 ]]; then
 		kill -9 ${PID}
@@ -99,7 +99,7 @@ do_stop(){
 		RETVAL=1
 	fi
 }
-do_status(){
+do_status() {
 	check_running
 	if [[ $? -eq 0 ]]; then
 		View_Config
@@ -109,15 +109,15 @@ do_status(){
 		RETVAL=1
 	fi
 }
-do_restart(){
+do_restart() {
 	do_stop
 	do_start
 }
 case "$1" in
-	start|stop|restart|status)
+start | stop | restart | status)
 	do_$1
 	;;
-	*)
+*)
 	echo -e "使用方法: $0 { start | stop | restart | status }"
 	RETVAL=1
 	;;
