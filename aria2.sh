@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.2.5
+# Version: 2.3.0
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.2.5"
+sh_ver="2.3.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -76,7 +76,12 @@ check_new_ver() {
     echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/P3TERX/aria2-builder/releases ]"
     read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
     if [[ -z ${aria2_new_ver} ]]; then
-        aria2_new_ver=$(wget -qO- https://api.github.com/repos/P3TERX/aria2-builder/releases/latest | grep -o '"tag_name": ".*"' | head -n 1 | cut -d'"' -f4)
+        aria2_new_ver=$(
+            {
+                wget -t2 -T3 -qO- "https://api.github.com/repos/P3TERX/aria2-builder/releases/latest" ||
+                    wget -t2 -T3 -qO- "https://gh-api.p3terx.com/repos/P3TERX/aria2-builder/releases/latest"
+            } | grep -o '"tag_name": ".*"' | head -n 1 | cut -d'"' -f4
+        )
         if [[ -z ${aria2_new_ver} ]]; then
             echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/P3TERX/aria2-builder/releases ]"
             read -e -p "请输入版本号 [ 格式如 1.35.0 ] :" aria2_new_ver
@@ -120,7 +125,11 @@ Download_aria2() {
         echo -e "${Error} 不支持此 CPU 架构。"
         exit 1
     fi
-    wget -O- "https://github.com/P3TERX/aria2-builder/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver%_*}-static-linux-${ARCH}.tar.gz" | tar -zx
+    DOWNLOAD_URL="https://github.com/P3TERX/aria2-builder/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver%_*}-static-linux-${ARCH}.tar.gz"
+    {
+        wget -t2 -T3 -O- "${DOWNLOAD_URL}" ||
+            wget -t2 -T3 -O- "https://gh-acc.p3terx.com/${DOWNLOAD_URL}"
+    } | tar -zx
     [[ ! -s "aria2c" ]] && echo -e "${Error} Aria2 下载失败 !" && exit 1
     [[ ${update_dl} = "update" ]] && rm -f "${aria2c}"
     mv aria2c /usr/local/bin
@@ -130,19 +139,29 @@ Download_aria2() {
 }
 Download_aria2_conf() {
     mkdir -p "${aria2_conf_path}" && cd "${aria2_conf_path}"
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/aria2.conf"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/aria2.conf" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/aria2.conf" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/aria2.conf"
     [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/autoupload.sh"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/autoupload.sh" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/autoupload.sh" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/autoupload.sh"
     [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.aria2.sh"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.aria2.sh" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/delete.aria2.sh" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.aria2.sh"
     [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/delete.sh"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.sh" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/delete.sh" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.sh"
     [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/info.sh"
-    [[ ! -s "info.sh" ]] && echo -e "${Error} 附加功能脚本[info.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht.dat"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht.dat" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/dht.dat" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht.dat"
     [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.conf/master/dht6.dat"
+    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht6.dat" ||
+        wget -N -t2 -T3 "https://aria2c.now.sh/dht6.dat" ||
+        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht6.dat"
     [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
     touch aria2.session
     chmod +x *.sh
@@ -153,16 +172,24 @@ Download_aria2_conf() {
 }
 Service_aria2() {
     if [[ ${release} = "centos" ]]; then
-        if ! wget https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_centos -O /etc/init.d/aria2; then
-            echo -e "${Error} Aria2服务 管理脚本下载失败 !" && exit 1
-        fi
+        wget -N -t2 -T3 "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_centos" -O /etc/init.d/aria2 ||
+            wget -N -t2 -T3 "https://cdn.jsdelivr.net/gh/P3TERX/aria2.sh/service/aria2_centos" -O /etc/init.d/aria2 ||
+            wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.sh/master/service/aria2_centos" -O /etc/init.d/aria2
+        [[ ! -s /etc/init.d/aria2 ]] && {
+            echo -e "${Error} Aria2服务 管理脚本下载失败 !"
+            exit 1
+        }
         chmod +x /etc/init.d/aria2
         chkconfig --add aria2
         chkconfig aria2 on
     else
-        if ! wget https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_debian -O /etc/init.d/aria2; then
-            echo -e "${Error} Aria2服务 管理脚本下载失败 !" && exit 1
-        fi
+        wget -N -t2 -T3 "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_debian" -O /etc/init.d/aria2 ||
+            wget -N -t2 -T3 "https://cdn.jsdelivr.net/gh/P3TERX/aria2.sh/service/aria2_debian" -O /etc/init.d/aria2 ||
+            wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.sh/master/service/aria2_debian" -O /etc/init.d/aria2
+        [[ ! -s /etc/init.d/aria2 ]] && {
+            echo -e "${Error} Aria2服务 管理脚本下载失败 !"
+            exit 1
+        }
         chmod +x /etc/init.d/aria2
         update-rc.d -f aria2 defaults
     fi
@@ -171,10 +198,10 @@ Service_aria2() {
 Installation_dependency() {
     if [[ ${release} = "centos" ]]; then
         yum update
-        yum install nano ca-certificates findutils tar gzip dpkg -y
+        yum install nano ca-certificates findutils jq tar gzip dpkg -y
     else
         apt-get update
-        apt-get install nano ca-certificates findutils tar gzip dpkg -y
+        apt-get install nano ca-certificates findutils jq tar gzip dpkg -y
     fi
     wget -qO- git.io/ca-certificates.sh | bash
 }
