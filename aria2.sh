@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.4.2
+# Version: 2.4.3
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.4.2"
+sh_ver="2.4.3"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -220,11 +220,11 @@ Install_aria2() {
     Service_aria2
     Read_config
     aria2_RPC_port=${aria2_port}
-    echo -e "${Info} 开始设置 iptables防火墙..."
+    echo -e "${Info} 开始设置 iptables 防火墙..."
     Set_iptables
-    echo -e "${Info} 开始添加 iptables防火墙规则..."
+    echo -e "${Info} 开始添加 iptables 防火墙规则..."
     Add_iptables
-    echo -e "${Info} 开始保存 iptables防火墙规则..."
+    echo -e "${Info} 开始保存 iptables 防火墙规则..."
     Save_iptables
     echo -e "${Info} 开始创建 下载目录..."
     mkdir -p ${download_path}
@@ -254,14 +254,13 @@ Set_aria2() {
     echo -e "
  ${Green_font_prefix}1.${Font_color_suffix} 修改 Aria2 RPC 密钥
  ${Green_font_prefix}2.${Font_color_suffix} 修改 Aria2 RPC 端口
- ${Green_font_prefix}3.${Font_color_suffix} 修改 Aria2 文件下载位置
- ${Green_font_prefix}4.${Font_color_suffix} 修改 Aria2 密钥 + 端口 + 文件下载位置
+ ${Green_font_prefix}3.${Font_color_suffix} 修改 Aria2 下载目录
+ ${Green_font_prefix}4.${Font_color_suffix} 修改 Aria2 密钥 + 端口 + 下载目录
  ${Green_font_prefix}5.${Font_color_suffix} 手动 打开配置文件修改
  ————————————
  ${Green_font_prefix}0.${Font_color_suffix} 重置/更新 Aria2 完美配置
 "
-    read -e -p "(默认: 取消):" aria2_modify
-    [[ -z "${aria2_modify}" ]] && echo "已取消..." && exit 1
+    read -e -p " 请输入数字 [0-5]:" aria2_modify
     if [[ ${aria2_modify} == "1" ]]; then
         Set_aria2_RPC_passwd
     elif [[ ${aria2_modify} == "2" ]]; then
@@ -275,7 +274,9 @@ Set_aria2() {
     elif [[ ${aria2_modify} == "0" ]]; then
         Reset_aria2_conf
     else
-        echo -e "${Error} 请输入正确的数字(0-5)" && exit 1
+        echo
+        echo -e " ${Error} 请输入正确的数字"
+        exit 1
     fi
 }
 Set_aria2_RPC_passwd() {
@@ -288,34 +289,38 @@ Set_aria2_RPC_passwd() {
     else
         aria2_passwd_1=${aria2_passwd}
     fi
-    echo -e "请输入要设置的 Aria2 RPC 密钥(旧密钥为：${Green_font_prefix}${aria2_passwd_1}${Font_color_suffix})"
-    read -e -p "(默认密钥: 随机生成 密钥请不要包含等号 = 和井号 #):" aria2_RPC_passwd
+    echo -e "
+ ${Tip} Aria2 RPC 密钥不要包含等号(=)和井号(#)，留空为随机生成。
+
+ 当前 RPC 密钥为: ${Green_font_prefix}${aria2_passwd_1}${Font_color_suffix}
+"
+    read -e -p " 请输入新的 RPC 密钥: " aria2_RPC_passwd
     echo
     [[ -z "${aria2_RPC_passwd}" ]] && aria2_RPC_passwd=$(date +%s%N | md5sum | head -c 20)
     if [[ "${aria2_passwd}" != "${aria2_RPC_passwd}" ]]; then
         if [[ -z "${aria2_passwd}" ]]; then
             echo -e "\nrpc-secret=${aria2_RPC_passwd}" >>${aria2_conf}
             if [[ $? -eq 0 ]]; then
-                echo -e "${Info} 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}(因为找不到旧配置参数，所以自动加入配置文件底部)"
+                echo -e "${Info} RPC 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}(配置文件中缺少相关选项参数，已自动加入配置文件底部)"
                 if [[ ${read_123} != "1" ]]; then
                     Restart_aria2
                 fi
             else
-                echo -e "${Error} 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
+                echo -e "${Error} RPC 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
             fi
         else
             sed -i 's/^rpc-secret='${aria2_passwd}'/rpc-secret='${aria2_RPC_passwd}'/g' ${aria2_conf}
             if [[ $? -eq 0 ]]; then
-                echo -e "${Info} 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}"
+                echo -e "${Info} RPC 密钥修改成功！新密钥为：${Green_font_prefix}${aria2_RPC_passwd}${Font_color_suffix}"
                 if [[ ${read_123} != "1" ]]; then
                     Restart_aria2
                 fi
             else
-                echo -e "${Error} 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
+                echo -e "${Error} RPC 密钥修改失败！旧密钥为：${Green_font_prefix}${aria2_passwd}${Font_color_suffix}"
             fi
         fi
     else
-        echo -e "${Error} 新密钥与旧密钥一致，取消..."
+        echo -e "${Error} 与旧配置一致，无需修改..."
     fi
 }
 Set_aria2_RPC_port() {
@@ -328,15 +333,17 @@ Set_aria2_RPC_port() {
     else
         aria2_port_1=${aria2_port}
     fi
-    echo -e "请输入要设置的 Aria2 RPC 端口(旧端口为：${Green_font_prefix}${aria2_port_1}${Font_color_suffix})"
-    read -e -p "(默认端口: 6800):" aria2_RPC_port
+    echo -e "
+ 当前 RPC 端口为: ${Green_font_prefix}${aria2_port_1}${Font_color_suffix}
+"
+    read -e -p " 请输入新的 RPC 端口(默认: 6800): " aria2_RPC_port
     echo
     [[ -z "${aria2_RPC_port}" ]] && aria2_RPC_port="6800"
     if [[ "${aria2_port}" != "${aria2_RPC_port}" ]]; then
         if [[ -z "${aria2_port}" ]]; then
             echo -e "\nrpc-listen-port=${aria2_RPC_port}" >>${aria2_conf}
             if [[ $? -eq 0 ]]; then
-                echo -e "${Info} 端口修改成功！新端口为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}(因为找不到旧配置参数，所以自动加入配置文件底部)"
+                echo -e "${Info} RPC 端口修改成功！新端口为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}(配置文件中缺少相关选项参数，已自动加入配置文件底部)"
                 Del_iptables
                 Add_iptables
                 Save_iptables
@@ -344,12 +351,12 @@ Set_aria2_RPC_port() {
                     Restart_aria2
                 fi
             else
-                echo -e "${Error} 端口修改失败！旧端口为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
+                echo -e "${Error} RPC 端口修改失败！旧端口为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
             fi
         else
             sed -i 's/^rpc-listen-port='${aria2_port}'/rpc-listen-port='${aria2_RPC_port}'/g' ${aria2_conf}
             if [[ $? -eq 0 ]]; then
-                echo -e "${Info} 端口修改成功！新端口为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
+                echo -e "${Info} RPC 端口修改成功！新端口为：${Green_font_prefix}${aria2_RPC_port}${Font_color_suffix}"
                 Del_iptables
                 Add_iptables
                 Save_iptables
@@ -357,11 +364,11 @@ Set_aria2_RPC_port() {
                     Restart_aria2
                 fi
             else
-                echo -e "${Error} 端口修改失败！旧端口为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
+                echo -e "${Error} RPC 端口修改失败！旧端口为：${Green_font_prefix}${aria2_port}${Font_color_suffix}"
             fi
         fi
     else
-        echo -e "${Error} 新端口与旧端口一致，取消..."
+        echo -e "${Error} 与旧配置一致，无需修改..."
     fi
 }
 Set_aria2_RPC_dir() {
@@ -374,43 +381,41 @@ Set_aria2_RPC_dir() {
     else
         aria2_dir_1=${aria2_dir}
     fi
-    echo -e "请输入要设置的 Aria2 文件下载位置(旧位置为：${Green_font_prefix}${aria2_dir_1}${Font_color_suffix})"
-    read -e -p "(默认位置: ${download_path}):" aria2_RPC_dir
+    echo -e "
+ 当前下载目录为: ${Green_font_prefix}${aria2_dir_1}${Font_color_suffix}
+"
+    read -e -p " 请输入新的下载目录(默认: ${download_path}): " aria2_RPC_dir
     [[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="${download_path}"
     mkdir -p ${aria2_RPC_dir}
     echo
-    if [[ -d "${aria2_RPC_dir}" ]]; then
-        if [[ "${aria2_dir}" != "${aria2_RPC_dir}" ]]; then
-            if [[ -z "${aria2_dir}" ]]; then
-                echo -e "\ndir=${aria2_RPC_dir}" >>${aria2_conf}
-                if [[ $? -eq 0 ]]; then
-                    echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}(因为找不到旧配置参数，所以自动加入配置文件底部)"
-                    if [[ ${read_123} != "1" ]]; then
-                        Restart_aria2
-                    fi
-                else
-                    echo -e "${Error} 位置修改失败！旧位置为：${Green_font_prefix}${aria2_dir}${Font_color_suffix}"
+    if [[ "${aria2_dir}" != "${aria2_RPC_dir}" ]]; then
+        if [[ -z "${aria2_dir}" ]]; then
+            echo -e "\ndir=${aria2_RPC_dir}" >>${aria2_conf}
+            if [[ $? -eq 0 ]]; then
+                echo -e "${Info} 下载目录修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}(配置文件中缺少相关选项参数，已自动加入配置文件底部)"
+                if [[ ${read_123} != "1" ]]; then
+                    Restart_aria2
                 fi
             else
-                aria2_dir_2=$(echo "${aria2_dir}" | sed 's/\//\\\//g')
-                aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}" | sed 's/\//\\\//g')
-                sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
-                sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
-                sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
-                if [[ $? -eq 0 ]]; then
-                    echo -e "${Info} 位置修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
-                    if [[ ${read_123} != "1" ]]; then
-                        Restart_aria2
-                    fi
-                else
-                    echo -e "${Error} 位置修改失败！旧位置为：${Green_font_prefix}${aria2_dir}${Font_color_suffix}"
-                fi
+                echo -e "${Error} 下载目录修改失败！旧位置为：${Green_font_prefix}${aria2_dir}${Font_color_suffix}"
             fi
         else
-            echo -e "${Error} 新位置与旧位置一致，取消..."
+            aria2_dir_2=$(echo "${aria2_dir}" | sed 's/\//\\\//g')
+            aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}" | sed 's/\//\\\//g')
+            sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
+            sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+            sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+            if [[ $? -eq 0 ]]; then
+                echo -e "${Info} 下载目录修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
+                if [[ ${read_123} != "1" ]]; then
+                    Restart_aria2
+                fi
+            else
+                echo -e "${Error} 下载目录修改失败！旧位置为：${Green_font_prefix}${aria2_dir}${Font_color_suffix}"
+            fi
         fi
     else
-        echo -e "${Error} 新位置文件夹不存在，请检查！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
+        echo -e "${Error} 与旧配置一致，无需修改..."
     fi
 }
 Set_aria2_RPC_passwd_port_dir() {
@@ -520,7 +525,7 @@ View_Log() {
 }
 Clean_Log() {
     [[ ! -e ${aria2_log} ]] && echo -e "${Error} Aria2 日志文件不存在 !" && exit 1
-    >${aria2_log}
+    echo >${aria2_log}
     echo -e "${Info} Aria2 日志已清空 !"
 }
 crontab_update_status() {
@@ -531,23 +536,23 @@ Update_bt_tracker_cron() {
     check_crontab_installed_status
     if [[ -z $(crontab_update_status) ]]; then
         echo
-        echo -e "确定要开启 ${Green_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能吗？(可能会增强 BT 下载速率)[Y/n] \c"
+        echo -e " 是否开启 ${Green_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能？(可能会增强 BT 下载速率)[Y/n] \c"
         read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
             crontab_update_start
         else
-            echo && echo "	已取消..." && echo
+            echo && echo " 已取消..."
         fi
     else
         echo
-        echo -e "确定要关闭 ${Red_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能吗？[y/N] \c"
+        echo -e " 是否关闭 ${Red_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能？[y/N] \c"
         read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
             crontab_update_stop
         else
-            echo && echo "	已取消..." && echo
+            echo && echo " 已取消..."
         fi
     fi
 }
@@ -742,6 +747,7 @@ case "$num" in
     Update_bt_tracker_cron
     ;;
 *)
-    echo "请输入正确数字 [0-12]"
+    echo
+    echo -e " ${Error} 请输入正确的数字"
     ;;
 esac
