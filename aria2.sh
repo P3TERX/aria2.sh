@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.3.0
+# Version: 2.4.0
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.3.0"
+sh_ver="2.4.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -515,13 +515,15 @@ Clean_Log() {
     >${aria2_log}
     echo -e "${Info} Aria2 日志已清空 !"
 }
+crontab_update_status() {
+    crontab -l | grep "tracker.sh"
+}
 Update_bt_tracker_cron() {
     check_installed_status
     check_crontab_installed_status
-    crontab_update_status=$(crontab -l | grep "tracker.sh")
-    if [[ -z "${crontab_update_status}" ]]; then
-        echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
-        echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？(可能会增强 BT 下载速率)[Y/n] \c"
+    if [[ -z "$(crontab_update_status)" ]]; then
+        echo
+        echo -e "确定要开启 ${Green_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能吗？(可能会增强 BT 下载速率)[Y/n] \c"
         read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
@@ -530,8 +532,8 @@ Update_bt_tracker_cron() {
             echo && echo "	已取消..." && echo
         fi
     else
-        echo && echo -e "当前自动更新模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-        echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker${Font_color_suffix} 功能吗？[y/N] \c"
+        echo
+        echo -e "确定要关闭 ${Red_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能吗？[y/N] \c"
         read -e crontab_update_status_ny
         [[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
         if [[ ${crontab_update_status_ny} == [Yy] ]]; then
@@ -550,10 +552,10 @@ crontab_update_start() {
     rm -f "/tmp/crontab.bak"
     cron_config=$(crontab -l | grep "tracker.sh")
     if [[ -z ${cron_config} ]]; then
-        echo && echo -e "${Error} Aria2 自动更新 BT-Tracker 开启失败 !" && exit 1
+        echo && echo -e "${Error} 自动更新 BT-Tracker 开启失败 !" && exit 1
     else
         Update_bt_tracker
-        echo && echo -e "${Info} Aria2 自动更新 BT-Tracker 开启成功 !"
+        echo && echo -e "${Info} 自动更新 BT-Tracker 开启成功 !"
     fi
 }
 crontab_update_stop() {
@@ -564,9 +566,9 @@ crontab_update_stop() {
     rm -f "/tmp/crontab.bak"
     cron_config=$(crontab -l | grep "tracker.sh")
     if [[ ! -z ${cron_config} ]]; then
-        echo && echo -e "${Error} Aria2 自动更新 BT-Tracker 停止失败 !" && exit 1
+        echo && echo -e "${Error} 自动更新 BT-Tracker 关闭失败 !" && exit 1
     else
-        echo && echo -e "${Info} Aria2 自动更新 BT-Tracker 停止成功 !"
+        echo && echo -e "${Info} 自动更新 BT-Tracker 关闭成功 !"
     fi
 }
 Update_bt_tracker() {
@@ -647,6 +649,9 @@ Update_Shell() {
         rm -rf /etc/init.d/aria2
         Service_aria2
     fi
+    if [[ -n $(crontab_update_status) ]]; then
+        crontab_update_stop
+    fi
     wget -N "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh" && chmod +x aria2.sh
     echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
@@ -654,32 +659,39 @@ Update_Shell() {
 echo && echo -e " Aria2 一键安装管理脚本 增强版 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix} by \033[1;35mP3TERX.COM\033[0m
  
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
-————————————————————————
+ ———————————————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Aria2
  ${Green_font_prefix} 2.${Font_color_suffix} 更新 Aria2
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Aria2
-————————————————————————
+ ———————————————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Aria2
  ${Green_font_prefix} 5.${Font_color_suffix} 停止 Aria2
  ${Green_font_prefix} 6.${Font_color_suffix} 重启 Aria2
-————————————————————————
+ ———————————————————————
  ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置
  ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置
  ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志
  ${Green_font_prefix}10.${Font_color_suffix} 清空 日志
-————————————————————————
+ ———————————————————————
  ${Green_font_prefix}11.${Font_color_suffix} 手动更新 BT-Tracker
  ${Green_font_prefix}12.${Font_color_suffix} 自动更新 BT-Tracker
-————————————————————————" && echo
+ ———————————————————————" && echo
 if [[ -e ${aria2c} ]]; then
     check_pid
     if [[ ! -z "${PID}" ]]; then
-        echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+        echo -e " Aria2 状态: ${Green_font_prefix}已安装${Font_color_suffix} | ${Green_font_prefix}已启动${Font_color_suffix}"
     else
-        echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+        echo -e " Aria2 状态: ${Green_font_prefix}已安装${Font_color_suffix} | ${Red_font_prefix}未启动${Font_color_suffix}"
+    fi
+    if [[ -n $(crontab_update_status) ]]; then
+        echo
+        echo -e " 自动更新 BT-Tracker: ${Green_font_prefix}已开启${Font_color_suffix}"
+    else
+        echo
+        echo -e " 自动更新 BT-Tracker: ${Red_font_prefix}未开启${Font_color_suffix}"
     fi
 else
-    echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
+    echo -e " Aria2 状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
 read -e -p " 请输入数字 [0-12]:" num
