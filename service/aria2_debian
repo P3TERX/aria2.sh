@@ -13,8 +13,9 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 NAME="Aria2"
 NAME_BIN="aria2c"
-CONFIG="/root/.aria2/aria2.conf"
-LOG="/root/.aria2/aria2.log"
+CONFIG_DIR="/root/.aria2"
+CONFIG="${CONFIG_DIR}/aria2.conf"
+LOG="${CONFIG_DIR}/aria2.log"
 
 Green_font_prefix="\033[32m"
 Red_font_prefix="\033[31m"
