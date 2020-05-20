@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.4.1
+# Version: 2.4.2
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.4.1"
+sh_ver="2.4.2"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -529,7 +529,7 @@ crontab_update_status() {
 Update_bt_tracker_cron() {
     check_installed_status
     check_crontab_installed_status
-    if [[ -z "$(crontab_update_status)" ]]; then
+    if [[ -z $(crontab_update_status) ]]; then
         echo
         echo -e "确定要开启 ${Green_font_prefix}自动更新 BT-Tracker${Font_color_suffix} 功能吗？(可能会增强 BT 下载速率)[Y/n] \c"
         read -e crontab_update_status_ny
@@ -558,8 +558,7 @@ crontab_update_start() {
     echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_path}/tracker.log" >>"/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
-    cron_config=$(crontab -l | grep "tracker.sh")
-    if [[ -z ${cron_config} ]]; then
+    if [[ -z $(crontab_update_status) ]]; then
         echo && echo -e "${Error} 自动更新 BT-Tracker 开启失败 !" && exit 1
     else
         Update_bt_tracker
@@ -572,8 +571,7 @@ crontab_update_stop() {
     sed -i "/tracker.sh/d" "/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
-    cron_config=$(crontab -l | grep "tracker.sh")
-    if [[ ! -z ${cron_config} ]]; then
+    if [[ -n $(crontab_update_status) ]]; then
         echo && echo -e "${Error} 自动更新 BT-Tracker 关闭失败 !" && exit 1
     else
         echo && echo -e "${Info} 自动更新 BT-Tracker 关闭成功 !"
