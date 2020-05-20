@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.4.0
+# Version: 2.4.1
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.4.0"
+sh_ver="2.4.1"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -251,14 +251,15 @@ Restart_aria2() {
 }
 Set_aria2() {
     check_installed_status
-    echo && echo -e "你要做什么？
- ${Green_font_prefix}1.${Font_color_suffix}  修改 Aria2 RPC 密钥
- ${Green_font_prefix}2.${Font_color_suffix}  修改 Aria2 RPC 端口
- ${Green_font_prefix}3.${Font_color_suffix}  修改 Aria2 文件下载位置
- ${Green_font_prefix}4.${Font_color_suffix}  修改 Aria2 密钥 + 端口 + 文件下载位置
- ${Green_font_prefix}5.${Font_color_suffix}  手动 打开配置文件修改
+    echo -e "
+ ${Green_font_prefix}1.${Font_color_suffix} 修改 Aria2 RPC 密钥
+ ${Green_font_prefix}2.${Font_color_suffix} 修改 Aria2 RPC 端口
+ ${Green_font_prefix}3.${Font_color_suffix} 修改 Aria2 文件下载位置
+ ${Green_font_prefix}4.${Font_color_suffix} 修改 Aria2 密钥 + 端口 + 文件下载位置
+ ${Green_font_prefix}5.${Font_color_suffix} 手动 打开配置文件修改
  ————————————
- ${Green_font_prefix}0.${Font_color_suffix}  重置/更新 Aria2 完美配置" && echo
+ ${Green_font_prefix}0.${Font_color_suffix} 重置/更新 Aria2 完美配置
+"
     read -e -p "(默认: 取消):" aria2_modify
     [[ -z "${aria2_modify}" ]] && echo "已取消..." && exit 1
     if [[ ${aria2_modify} == "1" ]]; then
@@ -423,13 +424,18 @@ Set_aria2_vim_conf() {
     Read_config
     aria2_port_old=${aria2_port}
     aria2_dir_old=${aria2_dir}
-    echo -e "${Tip} 手动修改配置文件须知（nano 文本编辑器使用教程：https://p3terx.com/archives/linux-nano-tutorial.html）：
-${Green_font_prefix}1.${Font_color_suffix} 配置文件中含有中文注释，如果你的 服务器系统 或 SSH工具 不支持中文显示，将会乱码(请本地编辑)。
-${Green_font_prefix}2.${Font_color_suffix} 一会自动打开配置文件后，就可以开始手动编辑文件了。
-${Green_font_prefix}3.${Font_color_suffix} 如果要退出并保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}y${Font_color_suffix} 后，再按一下 ${Green_font_prefix}回车键${Font_color_suffix} 即可。
-${Green_font_prefix}4.${Font_color_suffix} 如果要退出并不保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}n${Font_color_suffix} 即可。
-${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文件，那么配置文件位置： ${Green_font_prefix}/root/.aria2/aria2.conf${Font_color_suffix} (注意是隐藏目录) 。" && echo
-    read -e -p "如果已经理解 nano 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
+    echo -e "
+ 配置文件位置：${Green_font_prefix}${aria2_conf}${Font_color_suffix}
+
+ ${Tip} 手动修改配置文件须知：
+ 
+ ${Green_font_prefix}1.${Font_color_suffix} 默认使用 nano 文本编辑器打开
+ ${Green_font_prefix}2.${Font_color_suffix} 退出并保存文件：按 ${Green_font_prefix}Ctrl+X${Font_color_suffix} 组合键，输入 ${Green_font_prefix}y${Font_color_suffix} ，按 ${Green_font_prefix}Enter${Font_color_suffix} 键
+ ${Green_font_prefix}3.${Font_color_suffix} 退出不保存文件：按 ${Green_font_prefix}Ctrl+X${Font_color_suffix} 组合键，输入 ${Green_font_prefix}n${Font_color_suffix}
+ ${Green_font_prefix}4.${Font_color_suffix} nano 详细使用教程：${Green_font_prefix}https://p3terx.com/archives/linux-nano-tutorial.html${Font_color_suffix}
+ ${Green_font_prefix}5.${Font_color_suffix} 配置文件有中文注释，若语言设置有问题会导致中文乱码
+ "
+    read -e -p "按任意键继续，按 Ctrl+C 组合键取消" var
     nano "${aria2_conf}"
     Read_config
     if [[ ${aria2_port_old} != ${aria2_port} ]]; then
@@ -451,8 +457,10 @@ ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文�
 Reset_aria2_conf() {
     Read_config
     aria2_port_old=${aria2_port}
-    echo -e "${Tip} 此操作会重新下载 Aria2 完美配置，覆盖现有的配置文件及附加功能脚本。" && echo
-    read -e -p "按任意键继续，如要取消请使用 Ctrl+C 。" var
+    echo
+    echo -e "${Tip} 此操作将重新下载 Aria2 完美配置方案，所有已设定的配置将丢失。"
+    echo
+    read -e -p "按任意键继续，按 Ctrl+C 组合键取消" var
     Download_aria2_conf
     Read_config
     if [[ ${aria2_port_old} != ${aria2_port} ]]; then
