@@ -34,7 +34,7 @@ Aria2 是一个功能非常强大且齐全的下载工具，它支持 BT、磁�
 
 https://github.com/P3TERX/aria2.sh
 
-支持项目请随手点个`star`，让更多的人发现、使用并受益。
+支持项目请随手点个`star`，让更多的人发现、使用并受益。你的支持是我持续开发维护的动力。
 
 ## 系统要求
 
@@ -63,7 +63,7 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 * 选择你要执行的选项
 ```
- Aria2 一键安装管理脚本 增强版 [v2.4.1] by P3TERX.COM
+ Aria2 一键安装管理脚本 增强版 [v2.5.0] by P3TERX.COM
  
   0. 升级脚本
  ———————————————————————
@@ -93,25 +93,34 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 ## 其他操作
 
-启动：`/etc/init.d/aria2 start`
+启动：`/etc/init.d/aria2 start` | `service aria2 start`
 
-停止：`/etc/init.d/aria2 stop`
+停止：`/etc/init.d/aria2 stop` | `service aria2 stop`
 
-重启：`/etc/init.d/aria2 restart`
+重启：`/etc/init.d/aria2 restart` | `service aria2 restart`
 
-查看状态：`/etc/init.d/aria2 status`
+查看状态：`/etc/init.d/aria2 status` | `service aria2 status`
 
-配置文件：`/root/.aria2/aria2.conf` （配置文件包含中文注释，但是一些系统可能不支持显示中文）
+配置文件路径：`/root/.aria2c/aria2.conf` （配置文件有中文注释，若语言设置有问题会导致中文乱码）
 
-令牌密钥：随机生成（可以自己修改 7. 修改 配置文件）
+默认下载目录：`/root/downloads`
 
-默认下载目录：`/root/Download`
+RPC 密钥：随机生成，可使用选项`7. 修改 配置文件`自定义
 
 ## 更新日志
 
-> **TIPS:** 如果正在使用 v2.1.0 前的版本，请卸载后再升级，否则会导致功能异常。
+> **TIPS:** 如果正在使用 v2.5.0 之前的版本，建议卸载重装。
 
-### 2020-05-20 v2.4.1
+### 2020-05-21 v2.5.0
+
+- 解决 CLI 下`aria2c`无法直接下载的问题
+- 修改配置目录为`/root/.aria2c`
+- 修改下载目录为`/root/downloads`
+
+<details>
+<summary>历史记录</summary>
+
+### 2020-05-20 v2.4.5
 
 - 新增自动更新 BT Tracker 状态显示
 - 改进脚本升级策略
@@ -127,9 +136,6 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 - 新增 IPv6 地址检测功能
 - 优化防火墙设置，自动开放必要的端口。
 - 修复部分历史遗留 bug
-
-<details>
-<summary>历史记录</summary>
 
 ### 2020-04-14 v2.2.1
 
