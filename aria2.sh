@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.4.3
+# Version: 2.4.4
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.4.3"
+sh_ver="2.4.4"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_path="/root/.aria2"
@@ -203,7 +203,9 @@ Installation_dependency() {
         apt-get update
         apt-get install nano ca-certificates findutils jq tar gzip dpkg -y
     fi
-    wget -qO- git.io/ca-certificates.sh | bash
+    if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then
+        wget -qO- git.io/ca-certificates.sh | bash
+    fi
 }
 Install_aria2() {
     check_root
