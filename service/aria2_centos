@@ -15,7 +15,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 NAME="Aria2"
 NAME_BIN="aria2c"
-CONFIG_DIR="/root/.aria2"
+CONFIG_DIR="/root/.aria2c"
 CONFIG="${CONFIG_DIR}/aria2.conf"
 LOG="${CONFIG_DIR}/aria2.log"
 
@@ -27,6 +27,11 @@ Font_color_suffix="\033[0m"
 Info="[${Green_font_prefix}信息${Font_color_suffix}]"
 Error="[${Red_font_prefix}错误${Font_color_suffix}]"
 RETVAL=0
+
+[[ ! -e ${CONFIG_DIR} ]] && {
+	mv /root/.aria2 ${CONFIG_DIR}
+	sed -i "s@/root/.aria2/@${CONFIG_DIR}/@" ${CONFIG}
+}
 
 check_running() {
 	PID=$(ps -ef | grep "${NAME_BIN}" | grep -v "grep" | grep -v "aria2.sh" | grep -v "init.d" | grep -v "service" | awk '{print $2}')

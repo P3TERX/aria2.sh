@@ -3,19 +3,19 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.4.5
+# Version: 2.5.0
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.4.5"
+sh_ver="2.5.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-aria2_conf_path="/root/.aria2"
-download_path="/root/Download"
-aria2_conf="${aria2_conf_path}/aria2.conf"
-aria2_log="${aria2_conf_path}/aria2.log"
+aria2_conf_dir="/root/.aria2c"
+download_path="/root/downloads"
+aria2_conf="${aria2_conf_dir}/aria2.conf"
+aria2_log="${aria2_conf_dir}/aria2.log"
 aria2c="/usr/local/bin/aria2c"
 Crontab_file="/usr/bin/crontab"
 Green_font_prefix="\033[32m"
@@ -138,36 +138,37 @@ Download_aria2() {
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf() {
-    mkdir -p "${aria2_conf_path}" && cd "${aria2_conf_path}"
+    mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/aria2.conf" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/aria2.conf" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/aria2.conf"
-    [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/autoupload.sh" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/autoupload.sh" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/autoupload.sh"
-    [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.aria2.sh" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/delete.aria2.sh" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.aria2.sh"
-    [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.sh" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/delete.sh" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.sh"
-    [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht.dat" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/dht.dat" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht.dat"
-    [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht6.dat" ||
         wget -N -t2 -T3 "https://aria2c.now.sh/dht6.dat" ||
         wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht6.dat"
-    [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${aria2_conf_path}" && exit 1
+    [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
     touch aria2.session
     chmod +x *.sh
-    sed -i "/^downloadpath=/c\downloadpath='${download_path}'" ${aria2_conf_path}/*.sh
-    sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${download_path}'" ${aria2_conf_path}/*.sh
-    sed -i 's/^rpc-secret=P3TERX/rpc-secret='$(date +%s%N | md5sum | head -c 20)'/g' ${aria2_conf}
+    sed -i "s@^\(DOWNLOAD_PATH='\).*@\1${download_path}'@" ${aria2_conf_dir}/*.sh
+    sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
+    sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf}
+    sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
     echo -e "${Info} Aria2 完美配置下载完成！"
 }
 Service_aria2() {
@@ -404,9 +405,8 @@ Set_aria2_RPC_dir() {
         else
             aria2_dir_2=$(echo "${aria2_dir}" | sed 's/\//\\\//g')
             aria2_RPC_dir_2=$(echo "${aria2_RPC_dir}" | sed 's/\//\\\//g')
-            sed -i 's/^dir='${aria2_dir_2}'/dir='${aria2_RPC_dir_2}'/g' ${aria2_conf}
-            sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
-            sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+            sed -i "s@^\(dir=\).*@\1${aria2_RPC_dir_2}@" ${aria2_conf}
+            sed -i "s@^\(DOWNLOAD_PATH='\).*@\1${aria2_RPC_dir_2}'@" ${aria2_conf_dir}/*.sh
             if [[ $? -eq 0 ]]; then
                 echo -e "${Info} 下载目录修改成功！新位置为：${Green_font_prefix}${aria2_RPC_dir}${Font_color_suffix}"
                 if [[ ${read_123} != "1" ]]; then
@@ -456,8 +456,7 @@ Set_aria2_vim_conf() {
         mkdir -p ${aria2_dir}
         aria2_dir_2=$(echo "${aria2_dir}" | sed 's/\//\\\//g')
         aria2_dir_old_2=$(echo "${aria2_dir_old}" | sed 's/\//\\\//g')
-        sed -i "/^downloadpath=/c\downloadpath='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
-        sed -i "/^DOWNLOAD_PATH=/c\DOWNLOAD_PATH='${aria2_RPC_dir_2}'" ${aria2_conf_path}/*.sh
+        sed -i "s@^\(DOWNLOAD_PATH='\).*@\1${aria2_dir_2}'@" ${aria2_conf_dir}/*.sh
     fi
     Restart_aria2
 }
@@ -562,7 +561,7 @@ crontab_update_start() {
     crontab -l >"/tmp/crontab.bak"
     sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
     sed -i "/tracker.sh/d" "/tmp/crontab.bak"
-    echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_path}/tracker.log" >>"/tmp/crontab.bak"
+    echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_dir}/tracker.log" >>"/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
     if [[ -z $(crontab_update_status) ]]; then
@@ -616,7 +615,7 @@ Uninstall_aria2() {
         Del_iptables
         Save_iptables
         rm -rf "${aria2c}"
-        rm -rf "${aria2_conf_path}"
+        rm -rf "${aria2_conf_dir}"
         if [[ ${release} = "centos" ]]; then
             chkconfig --del aria2
         else
