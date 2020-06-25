@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.5.2
+# Version: 2.5.3
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.5.2"
+sh_ver="2.5.3"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -143,12 +143,13 @@ Download_aria2_conf() {
     PROFILE_URL3="https://gh.p3terx.workers.dev/aria2.conf/master"
     PROFILE_LIST="
 aria2.conf
-autoupload.sh
-delete.aria2.sh
+clean.sh
+upload.sh
 delete.sh
 dht.dat
 dht6.dat
 move.sh
+LICENSE
 "
     mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
     for PROFILE in ${PROFILE_LIST}; do
