@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.5.1
+# Version: 2.5.2
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.5.1"
+sh_ver="2.5.2"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -138,37 +138,36 @@ Download_aria2() {
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf() {
+    PROFILE_URL1="https://p3terx.github.io/aria2.conf"
+    PROFILE_URL2="https://aria2c.now.sh"
+    PROFILE_URL3="https://gh.p3terx.workers.dev/aria2.conf/master"
+    PROFILE_LIST="
+aria2.conf
+autoupload.sh
+delete.aria2.sh
+delete.sh
+dht.dat
+dht6.dat
+move.sh
+"
     mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/aria2.conf" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/aria2.conf" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/aria2.conf"
-    [[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/autoupload.sh" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/autoupload.sh" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/autoupload.sh"
-    [[ ! -s "autoupload.sh" ]] && echo -e "${Error} 附加功能脚本[autoupload.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.aria2.sh" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/delete.aria2.sh" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.aria2.sh"
-    [[ ! -s "delete.aria2.sh" ]] && echo -e "${Error} 附加功能脚本[delete.aria2.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/delete.sh" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/delete.sh" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/delete.sh"
-    [[ ! -s "delete.sh" ]] && echo -e "${Error} 附加功能脚本[delete.sh]下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht.dat" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/dht.dat" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht.dat"
-    [[ ! -s "dht.dat" ]] && echo -e "${Error} Aria2 DHT（IPv4）文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    wget -N -t2 -T3 "https://p3terx.github.io/aria2.conf/dht6.dat" ||
-        wget -N -t2 -T3 "https://aria2c.now.sh/dht6.dat" ||
-        wget -N -t2 -T3 "https://gh.p3terx.workers.dev/aria2.conf/master/dht6.dat"
-    [[ ! -s "dht6.dat" ]] && echo -e "${Error} Aria2 DHT（IPv6）文件下载失败 !" && rm -rf "${aria2_conf_dir}" && exit 1
-    touch aria2.session
-    chmod +x *.sh
+    for PROFILE in ${PROFILE_LIST}; do
+        [[ ! -f ${PROFILE} ]] && rm -rf ${PROFILE}
+        wget -N -t2 -T3 ${PROFILE_URL1}/${PROFILE} ||
+            wget -N -t2 -T3 ${PROFILE_URL2}/${PROFILE} ||
+            wget -N -t2 -T3 ${PROFILE_URL3}/${PROFILE}
+        [[ ! -s ${PROFILE} ]] && {
+            echo -e "${Error} '${PROFILE}' 下载失败！清理残留文件..."
+            rm -vrf "${aria2_conf_dir}"
+            exit 1
+        }
+    done
     sed -i "s@^\(DOWNLOAD_PATH='\).*@\1${download_path}'@" ${aria2_conf_dir}/*.sh
     sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
     sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/{*.sh,aria2.conf}
     sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
+    touch aria2.session
+    chmod +x *.sh
     echo -e "${Info} Aria2 完美配置下载完成！"
 }
 Service_aria2() {
