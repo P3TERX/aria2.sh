@@ -4,7 +4,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/P3TERX/aria2.sh.svg?style=flat-square&label=Stars&logo=github)](https://github.com/P3TERX/aria2.sh/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/P3TERX/aria2.sh.svg?style=flat-square&label=Forks&logo=github)](https://github.com/P3TERX/aria2.sh/fork)
 
-Aria2 是一个功能非常强大且齐全的下载工具，它支持 BT、磁力、HTTP、FTP 等下载协议，常用做离线下载的服务端。Aria2 一键安装管理脚本是 Toyo (逗比) 大佬最为知名的脚本作品之一，2018年11月14日逗比大佬因未知原因突然失联。由于博主非常喜欢 Aria2 所以自2018年12月7日起开始接手这个项目并进行了大量的功能与细节优化，一直持续维护至今。增强版脚本整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)，在安装 Aria2 的过程中会下载这套配置方案，这套方案包含了配置文件、附加功能脚本等文件，用于实现 Aria2 功能的增强和扩展，提升 Aria2 的使用体验，解决 Aria2 在使用中遇到的 BT 下载无速度、文件残留占用磁盘空间、任务丢失、重复下载等问题。
+Aria2 是目前最强大的全能型下载工具，它支持 BT、磁力、HTTP、FTP 等下载协议，常用做离线下载的服务端。Aria2 一键安装管理脚本是 Toyo (逗比) 大佬最为知名的脚本作品之一，2018年11月14日逗比大佬因未知原因突然失联。由于博主非常喜欢 Aria2 所以自2018年12月7日起开始接手这个项目并进行了大量的功能与细节优化，一直持续维护至今。增强版脚本整合了 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)，在安装 Aria2 的过程中会下载这套配置方案，这套方案包含了配置文件、附加功能脚本等文件，用于实现 Aria2 功能的增强和扩展，提升 Aria2 的下载速度与使用体验，解决 Aria2 在使用中遇到的 BT 下载无速度、文件残留占用磁盘空间、任务丢失、重复下载等问题。
 
 ## 功能特性
 
@@ -14,14 +14,15 @@ Aria2 是一个功能非常强大且齐全的下载工具，它支持 BT、磁�
     - 下载错误或取消下载自动删除未完成的文件防止磁盘空间占用
     - 下载完成自动清除`.aria2`后缀名文件
     - 更好的 PT 下载支持
-    - 有一定的防版权投诉、防迅雷吸血能力
+    - 防版权投诉、防迅雷吸血优化
 
 - 使用 [aria2-builder](https://github.com/P3TERX/aria2-builder) 项目最新静态编译二进制文件
     - 多平台：`amd64`, `i386`, `arm64`, `armhf`
     - 全功能：`Async DNS`, `BitTorrent`, `Firefox3 Cookie`, `GZip`, `HTTPS`, `Message Digest`, `Metalink`, `XML-RPC`, `SFTP`
-    - 无单服务器线程数限制，最大值可以为无限大。
-    - 最新依赖库，提供更安全、稳定、快速的下载体验
-    - 通过 CI 服务持续更新最新版本
+    - 单服务器线程数最大值无上限（已破解线程数限制）
+    - 防掉线程优化
+    - 最新依赖库，下载更安全、稳定、快速
+    - 持续更新最新版本
 
 - 支持与 [RCLONE](https://rclone.org/) 联动，更多扩展功能与玩法：
     - [OneDrive、Google Drive 等网盘离线下载](https://p3terx.com/archives/offline-download-of-onedrive-gdrive.html)
@@ -34,7 +35,7 @@ Aria2 是一个功能非常强大且齐全的下载工具，它支持 BT、磁�
 
 https://github.com/P3TERX/aria2.sh
 
-支持项目请随手点个`star`，让更多的人发现、使用并受益。你的支持是我持续开发维护的动力。
+支持项目请随手点个`star`，可以让更多的人发现、使用并受益。你的支持是我持续开发维护的动力。
 
 ## 系统要求
 
@@ -63,7 +64,7 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 * 选择你要执行的选项
 ```
- Aria2 一键安装管理脚本 增强版 [v2.5.0] by P3TERX.COM
+ Aria2 一键安装管理脚本 增强版 [v2.5.3] by P3TERX.COM
  
   0. 升级脚本
  ———————————————————————
@@ -107,9 +108,19 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 RPC 密钥：随机生成，可使用选项`7. 修改 配置文件`自定义
 
+## 遇到问题如何处理
+
+遇到问题先看 [FAQ](https://p3terx.com/archives/aria2_perfect_config-faq.html) 再提问，你还可以加入 [Aria2 TG 群](https://t.me/Aria2c)和小伙伴们一起讨论。要注意提问的方式和提供有用的信息，提问前建议去学习《[提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/master/README-zh_CN.md)》，这能更好的帮助你去解决问题和节约时间。诸如 “为什么不能使用？”、“那你能帮帮我吗？” 之类的问题应该没有人会知道。
+
 ## 更新日志
 
-> **TIPS:** 如果正在使用 v2.5.0 之前的版本，建议卸载重装。
+更新推送：[Aria2 Channel](https://t.me/Aria2_Channel)
+
+### 2020-06-27 v2.5.3
+
+- 同步 Aria2 完美配置文件名改动
+- 安装过程优化
+- 修复 bug
 
 ### 2020-05-21 v2.5.0
 
