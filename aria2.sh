@@ -3,13 +3,13 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.5.3
+# Version: 2.5.4
 # Author: Toyo
 # Maintainer: P3TERX
 # Blog: https://p3terx.com
 #=============================================================
 
-sh_ver="2.5.3"
+sh_ver="2.5.4"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -167,6 +167,8 @@ LICENSE
     sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
     sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/{*.sh,aria2.conf}
     sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
+    sed -i "s@^#\(retry-on-.*=\).*@\1true@" ${aria2_conf}
+    sed -i "s@^\(max-connection-per-server=\).*@\132@" ${aria2_conf}
     touch aria2.session
     chmod +x *.sh
     echo -e "${Info} Aria2 完美配置下载完成！"
