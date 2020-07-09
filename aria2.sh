@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-#=============================================================
+#
+# Copyright (c) 2017 Toyo
+# Copyright (c) 2018-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.5.5
-# Author: Toyo
-# Maintainer: P3TERX
-# Blog: https://p3terx.com
-#=============================================================
+# Version: 2.5.6
+#
 
-sh_ver="2.5.5"
+sh_ver="2.5.6"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -201,10 +204,10 @@ Service_aria2() {
 Installation_dependency() {
     if [[ ${release} = "centos" ]]; then
         yum update
-        yum install nano ca-certificates findutils jq tar gzip dpkg -y
+        yum install -y wget curl nano ca-certificates findutils jq tar gzip dpkg
     else
         apt-get update
-        apt-get install nano ca-certificates findutils jq tar gzip dpkg -y
+        apt-get install -y wget curl nano ca-certificates findutils jq tar gzip dpkg
     fi
     if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then
         wget -qO- git.io/ca-certificates.sh | bash
