@@ -9,10 +9,10 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.5.6
+# Version: 2.6.0
 #
 
-sh_ver="2.5.6"
+sh_ver="2.6.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -76,9 +76,6 @@ check_pid() {
     PID=$(ps -ef | grep "aria2c" | grep -v grep | grep -v "aria2.sh" | grep -v "init.d" | grep -v "service" | awk '{print $2}')
 }
 check_new_ver() {
-    #echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.35.0 ]，获取地址：[ https://github.com/P3TERX/aria2-builder/releases ]"
-    #read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
-    #if [[ -z ${aria2_new_ver} ]]; then
     aria2_new_ver=$(
         {
             wget -t2 -T3 -qO- "https://api.github.com/repos/P3TERX/aria2-builder/releases/latest" ||
@@ -89,18 +86,9 @@ check_new_ver() {
         echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/P3TERX/aria2-builder/releases ]"
         read -e -p "请输入版本号:" aria2_new_ver
         [[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
-    #else
-    #    echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
     fi
-    #else
-    #    echo -e "${Info} 即将准备下载 Aria2 版本为 [ ${aria2_new_ver} ]"
-    #fi
 }
 check_ver_comparison() {
-    #aria2_now_ver=$(${aria2c} -v | head -n 1 | awk '{print $3}')
-    #[[ -z ${aria2_now_ver} ]] && echo -e "${Error} Aria2 当前版本获取失败 !" && exit 1
-    #if [[ "${aria2_now_ver}" != "${aria2_new_ver}" ]]; then
-    #    echo -e "${Info} 发现 Aria2 已有新版本 [ ${aria2_new_ver} ](当前版本：${aria2_now_ver})"
     read -e -p "是否更新(会中断当前下载任务) ? [Y/n] :" yn
     [[ -z "${yn}" ]] && yn="y"
     if [[ $yn == [Yy] ]]; then
@@ -110,9 +98,6 @@ check_ver_comparison() {
         Download_aria2 "update"
         Start_aria2
     fi
-    #else
-    #    echo -e "${Info} 当前 Aria2 已是最新版本 [ ${aria2_new_ver} ]" && exit 1
-    #fi
 }
 Download_aria2() {
     update_dl=$1
@@ -147,6 +132,9 @@ Download_aria2_conf() {
     PROFILE_LIST="
 aria2.conf
 clean.sh
+core
+script.conf
+rclone.env
 upload.sh
 delete.sh
 dht.dat
@@ -166,9 +154,8 @@ LICENSE
             exit 1
         }
     done
-    sed -i "s@^\(DOWNLOAD_PATH='\).*@\1${download_path}'@" ${aria2_conf_dir}/*.sh
     sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
-    sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/{*.sh,aria2.conf}
+    sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/*.conf
     sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
     sed -i "s@^#\(retry-on-.*=\).*@\1true@" ${aria2_conf}
     sed -i "s@^\(max-connection-per-server=\).*@\132@" ${aria2_conf}
