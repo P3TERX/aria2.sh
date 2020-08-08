@@ -45,21 +45,21 @@ Read_config() {
 }
 View_Config() {
 	Read_config
-	IPV4=$(
-		wget -qO- -t1 -T2 -4 ip.sb ||
-			wget -qO- -t1 -T2 -4 ifconfig.io ||
-			wget -qO- -t1 -T2 -4 www.trackip.net/ip
-	)
+    IPV4=$(
+        wget -qO- -t1 -T2 -4 api.ip.sb/ip ||
+            wget -qO- -t1 -T2 -4 ifconfig.io/ip ||
+            wget -qO- -t1 -T2 -4 www.trackip.net/ip
+    )
+    IPV6=$(
+        wget -qO- -t1 -T2 -6 api.ip.sb/ip ||
+            wget -qO- -t1 -T2 -6 ifconfig.io/ip ||
+            wget -qO- -t1 -T2 -6 www.trackip.net/ip
+    )
 	[[ -z "${IPV4}" ]] && IPV4="IPv4 地址检测失败"
-	IPV6=$(
-		wget -qO- -t1 -T2 -6 ip.sb ||
-			wget -qO- -t1 -T2 -6 ifconfig.io ||
-			wget -qO- -t1 -T2 -6 www.trackip.net/ip
-	)
 	[[ -z "${IPV6}" ]] && IPV6="IPv6 地址检测失败"
-	[[ -z "${Download_dir}" ]] && Download_dir="/usr/local/aria2/"
-	[[ -z "${RPC_listen_port}" ]] && RPC_listen_port="6800"
-	[[ -z "${RPC_secret}" ]] && RPC_secret="无令牌密钥"
+	[[ -z "${Download_dir}" ]] && Download_dir="找不到配置参数"
+	[[ -z "${RPC_listen_port}" ]] && RPC_listen_port="找不到配置参数"
+	[[ -z "${RPC_secret}" ]] && RPC_secret="找不到配置参数(或无密钥)"
 	clear
 	echo -e "\nAria2 简单配置信息：\n
  IPv4 地址\t: ${Green_font_prefix}${IPV4}${Font_color_suffix}

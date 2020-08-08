@@ -9,10 +9,10 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.6.1
+# Version: 2.6.2
 #
 
-sh_ver="2.6.1"
+sh_ver="2.6.2"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -489,16 +489,16 @@ View_Aria2() {
     check_installed_status
     Read_config
     IPV4=$(
-        wget -qO- -t1 -T2 -4 ip.sb ||
-            wget -qO- -t1 -T2 -4 ifconfig.io ||
+        wget -qO- -t1 -T2 -4 api.ip.sb/ip ||
+            wget -qO- -t1 -T2 -4 ifconfig.io/ip ||
             wget -qO- -t1 -T2 -4 www.trackip.net/ip
     )
-    [[ -z "${IPV4}" ]] && IPV4="IPv4 地址检测失败"
     IPV6=$(
-        wget -qO- -t1 -T2 -6 ip.sb ||
-            wget -qO- -t1 -T2 -6 ifconfig.io ||
+        wget -qO- -t1 -T2 -6 api.ip.sb/ip ||
+            wget -qO- -t1 -T2 -6 ifconfig.io/ip ||
             wget -qO- -t1 -T2 -6 www.trackip.net/ip
     )
+    [[ -z "${IPV4}" ]] && IPV4="IPv4 地址检测失败"
     [[ -z "${IPV6}" ]] && IPV6="IPv6 地址检测失败"
     [[ -z "${aria2_dir}" ]] && aria2_dir="找不到配置参数"
     [[ -z "${aria2_port}" ]] && aria2_port="找不到配置参数"
