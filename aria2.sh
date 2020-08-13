@@ -9,10 +9,10 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.6.2
+# Version: 2.7.0
 #
 
-sh_ver="2.6.2"
+sh_ver="2.7.0"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 aria2_conf_dir="/root/.aria2c"
@@ -503,13 +503,20 @@ View_Aria2() {
     [[ -z "${aria2_dir}" ]] && aria2_dir="找不到配置参数"
     [[ -z "${aria2_port}" ]] && aria2_port="找不到配置参数"
     [[ -z "${aria2_passwd}" ]] && aria2_passwd="找不到配置参数(或无密钥)"
+    if [[ -z "${IPV4}" || -z "${aria2_port}" ]]; then
+        AriaNg_URL="null"
+    else
+        AriaNg_API="/#!/settings/rpc/set/ws/${IPV4}/${aria2_port}/jsonrpc/$(echo -n ${aria2_passwd} | base64)"
+        AriaNg_URL="http://ariang.js.org${AriaNg_API}"
+    fi
     clear
     echo -e "\nAria2 简单配置信息：\n
  IPv4 地址\t: ${Green_font_prefix}${IPV4}${Font_color_suffix}
  IPv6 地址\t: ${Green_font_prefix}${IPV6}${Font_color_suffix}
  RPC 端口\t: ${Green_font_prefix}${aria2_port}${Font_color_suffix}
  RPC 密钥\t: ${Green_font_prefix}${aria2_passwd}${Font_color_suffix}
- 下载目录\t: ${Green_font_prefix}${aria2_dir}${Font_color_suffix}\n"
+ 下载目录\t: ${Green_font_prefix}${aria2_dir}${Font_color_suffix}
+ AriaNg 链接\t: ${Green_font_prefix}${AriaNg_URL}${Font_color_suffix}\n"
 }
 View_Log() {
     [[ ! -e ${aria2_log} ]] && echo -e "${Error} Aria2 日志文件不存在 !" && exit 1
