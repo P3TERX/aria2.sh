@@ -9,8 +9,8 @@
 # Description:       Start or stop the Aria2
 ### END INIT INFO
 
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-export PATH
+#PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+#export PATH
 NAME="Aria2"
 NAME_BIN="aria2c"
 CONFIG_DIR="/root/.aria2c"
