@@ -9,12 +9,11 @@
 # https://github.com/P3TERX/aria2.sh
 # Description: Aria2 One-click installation management script
 # System Required: CentOS/Debian/Ubuntu
-# Version: 2.7.2
+# Version: 2.7.3
 #
 
-sh_ver="2.7.2"
-#PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-#export PATH
+sh_ver="2.7.3"
+export PATH=~/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/sbin:/bin
 aria2_conf_dir="/root/.aria2c"
 download_path="/root/downloads"
 aria2_conf="${aria2_conf_dir}/aria2.conf"
