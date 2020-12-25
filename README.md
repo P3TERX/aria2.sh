@@ -21,7 +21,7 @@ Aria2 是目前最强大的全能型下载工具，它支持 BT、磁力、HTTP�
     * 有一定的防版权投诉、防迅雷吸血效果
     * 更好的 PT 下载支持
 
-- 使用 [aria2-builder](https://github.com/P3TERX/aria2-builder) 项目最新静态编译二进制文件
+- 使用 [Aria2 Pro Core](https://github.com/P3TERX/Aria2-Pro-Core) 项目最新静态编译二进制文件
     - 多平台：`amd64`, `i386`, `arm64`, `armhf`
     - 全功能：`Async DNS`, `BitTorrent`, `Firefox3 Cookie`, `GZip`, `HTTPS`, `Message Digest`, `Metalink`, `XML-RPC`, `SFTP`
     - 单服务器线程数最大值无上限（已破解线程数限制）
@@ -69,7 +69,7 @@ wget -N git.io/aria2.sh && chmod +x aria2.sh
 
 * 选择你要执行的选项
 ```
- Aria2 一键安装管理脚本 增强版 [v2.6.2] by P3TERX.COM
+ Aria2 一键安装管理脚本 增强版 [v2.7.4] by P3TERX.COM
  
   0. 升级脚本
  ———————————————————————
@@ -121,6 +121,16 @@ RPC 密钥：随机生成，可使用选项`7. 修改 配置文件`自定义
 
 更新推送：[Aria2 Channel](https://t.me/Aria2_Channel)
 
+### 2020-12-26 v2.7.4 Final
+
+> **NOTICE:** 由于脚本代码历史包袱太重，这将是最后一次维护更新。未来可能会写一个全新的脚本来替代。
+
+- 更换 Aria2 二进制文件下载链接
+- 修复若干 bug
+
+<details>
+<summary>历史记录</summary>
+
 ### 2020-08-15 v2.7.0
 
 - 新增 AriaNg 链接功能
@@ -134,9 +144,6 @@ RPC 密钥：随机生成，可使用选项`7. 修改 配置文件`自定义
 
 - 适配新版 [Aria2 完美配置](https://github.com/P3TERX/aria2.conf)
 - 移除 Aria2 版本选择功能
-
-<details>
-<summary>历史记录</summary>
 
 ### 2020-06-27 v2.5.3
 
